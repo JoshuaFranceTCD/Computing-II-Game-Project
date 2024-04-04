@@ -1,0 +1,326 @@
+   1              	# 0 "./src/game.s"
+   2              	# 1 "C:\\Users\\jfrance\\OneDrive - Trinity College Dublin\\Computing-II-Game-Project\\2590-game//"
+   0              	
+   0              	
+   0              	
+   1              	# PASTE LINK TO TEAM VIDEO BELOW
+   2              	#
+   3              	#
+   4              	
+   5              	  .syntax unified
+   6              	  .cpu cortex-m4
+   7              	  .fpu softvfp
+   8              	  .thumb
+   9              	  
+  10              	  .global Main
+  11              	  .global  SysTick_Handler
+  12              	  .global EXTI0_IRQHandler
+  13              	
+  14              	  @ Definitions are in definitions.s to keep this file "clean"
+  15              	  .include "./src/definitions.s"
+   1              	  .equ    GPIOE_BASE, 0x48001000
+   2              	  .equ    GPIOE_MODER, (GPIOE_BASE + 0x00)
+   3              	  .equ    GPIOE_OTYPER, (GPIOE_BASE + 0x04)
+   4              	  .equ    GPIOE_OSPEEDR, (GPIOE_BASE + 0x08)
+   5              	  .equ    GPIOE_PUPDR, (GPIOE_BASE + 0x0C)
+   6              	  .equ    GPIOE_IDR, (GPIOE_BASE + 0x10)
+   7              	  .equ    GPIOE_ODR, (GPIOE_BASE + 0x14)
+   8              	  .equ    GPIOE_BSRR, (GPIOE_BASE + 0x18)
+   9              	  .equ    GPIOE_LCKR, (GPIOE_BASE + 0x1C)
+  10              	  .equ    GPIOE_AFRL, (GPIOE_BASE + 0x20)
+  11              	  .equ    GPIOE_AFRH, (GPIOE_BASE + 0x24)
+  12              	
+  13              	  .equ    RCC_BASE, 0x40021000
+  14              	  .equ    RCC_AHBENR, (RCC_BASE + 0x14)
+  15              	  .equ    RCC_AHBENR_GPIOEEN_BIT, 21
+  16              	
+  17              	  .equ    SYSTICK_BASE, 0xE000E010
+  18              	  .equ    SYSTICK_CSR, (SYSTICK_BASE + 0x00)
+  19              	  .equ    SYSTICK_LOAD, (SYSTICK_BASE + 0x04)
+  20              	  .equ    SYSTICK_VAL, (SYSTICK_BASE + 0x08)
+  21              	
+  22              	  .equ    SYSCFG_BASE, (0x40010000)
+  23              	  .equ    SYSCFG_EXTIICR1, (SYSCFG_BASE + 0x08)
+  24              	
+  25              	  .equ    NVIC_ISER, 0xE000E100
+  26              	
+  27              	  .equ    EXTI_BASE, 0x40010400
+  28              	  .equ    EXTI_IMR, (EXTI_BASE + 0x00)
+  29              	  .equ    EXTI_RTSR, (EXTI_BASE + 0x08)
+  30              	  .equ    EXTI_FTSR, (EXTI_BASE + 0x0C)
+  31              	  .equ    EXTI_PR, (EXTI_BASE + 0x14)
+  32              	
+  33              	  .equ    LD3_PIN, 9
+  34              	  .equ    LD4_PIN, 8
+  35              	  .equ    LD5_PIN, 10
+  36              	  .equ    LD6_PIN, 15
+  37              	  .equ    LD7_PIN, 11
+  38              	  .equ    LD8_PIN, 14
+  39              	  .equ    LD9_PIN, 12
+  40              	  .equ    LD10_PIN, 13
+  41              	  
+  42              	  .equ    SCB_BASE, 0xE000ED00
+  43              	  .equ    SCB_ICSR, (SCB_BASE + 0x04)
+  44              	  .equ    SCB_ICSR_PENDSTCLR, (1<<25)
+  16              	
+  17              	  
+  18              	
+  19              	  .section .text
+  20              	  
+  21              	  .equ    FLASH_OFF_TIMER   , 1500
+  22              	  .equ    FLASH_ON_TIMER   , 500
+  23              	  
+  24              	  //.equ    BLINK_PERIOD, FLASH_OFF   @ blink time = 1000 ms
+  25              	  
+  26              	
+  27              	Main:
+  28 0000 30B5     	  PUSH  {R4-R5,LR}
+  29              	
+  30              	
+  31              	  @
+  32              	  @ Prepare GPIO Port E Pin 9 for output (LED LD3)
+  33              	  @ We'll blink LED LD3 (the orange LED)
+  34              	  @
+  35              	  @ Enable GPIO port E by enabling its clock
+  36 0002 374C     	  LDR     R4, =RCC_AHBENR
+  37 0004 2568     	  LDR     R5, [R4]
+  38 0006 45F40015 	  ORR     R5, R5, #(0b1 << (RCC_AHBENR_GPIOEEN_BIT))
+  39 000a 2560     	  STR     R5, [R4]
+  40              	  
+  41              	  
+  42              	
+  43              	
+  44              	  @ Initialise the first countdown
+  45 000c 354C     	  LDR     R4, =blink_countdown
+  46 000e 40F2DC55 	  LDR     R5, =FLASH_OFF_TIMER
+  47 0012 2560     	  STR     R5, [R4]  
+  48              	  @ Configure SysTick Timer to generate an interrupt every 1ms
+  49 0014 344C     	  LDR     R4, =SCB_ICSR               @ Clear any pre-existing interrupts
+  50 0016 4FF00075 	  LDR     R5, =SCB_ICSR_PENDSTCLR     @
+  51 001a 2560     	  STR     R5, [R4]                    @
+  52 001c 334C     	  LDR     R4, =SYSTICK_CSR            @ Stop SysTick timer
+  53 001e 4FF00005 	  LDR     R5, =0                      @   by writing 0 to CSR
+  54 0022 2560     	  STR     R5, [R4]                    @   CSR is the Control and Status Register
+  55 0024 324C     	  LDR     R4, =SYSTICK_LOAD           @ Set SysTick LOAD for 1ms delay
+  56 0026 41F63F75 	  LDR     R5, =7999                   @ Assuming 8MHz clock
+  57 002a 2560     	  STR     R5, [R4]                    @ 
+  58 002c 314C     	  LDR     R4, =SYSTICK_VAL            @   Reset SysTick internal counter to 0
+  59 002e 4FF00105 	  LDR     R5, =0x1                    @     by writing any value
+  60 0032 2560     	  STR     R5, [R4]
+  61 0034 2D4C     	  LDR     R4, =SYSTICK_CSR            @   Start SysTick timer by setting CSR to 0x7
+  62 0036 4FF00705 	  LDR     R5, =0x7                    @     set CLKSOURCE (bit 2) to system clock (1)
+  63 003a 2560     	  STR     R5, [R4]                    @     set TICKINT (bit 1) to 1 to enable interrupts
+  64              	                                      @     set ENABLE (bit 0) to 1
+  65              	  @
+  66              	  @ Prepare external interrupt Line 0 (USER pushbutton)
+  67              	  @ 
+  68              	  @ Configure USER pushbutton (GPIO Port A Pin 0 on STM32F3 Discovery
+  69              	  @   kit) to use the EXTI0 external interrupt signal
+  70              	  @ Determined by bits 3..0 of the External Interrrupt Control
+  71              	  @   Register (EXTIICR)
+  72 003c 2E4C     	  LDR     R4, =SYSCFG_EXTIICR1
+  73 003e 2568     	  LDR     R5, [R4]
+  74 0040 25F00F05 	  BIC     R5, R5, #0b1111
+  75 0044 2560     	  STR     R5, [R4]
+  76              	  @ Enable (unmask) interrupts on external interrupt Line0
+  77 0046 2D4C     	  LDR     R4, =EXTI_IMR
+  78 0048 2568     	  LDR     R5, [R4]
+  79 004a 45F00105 	  ORR     R5, R5, #1
+  80 004e 2560     	  STR     R5, [R4]
+  81              	  @ Set falling edge detection on Line0
+  82 0050 2B4C     	  LDR     R4, =EXTI_FTSR
+  83 0052 2568     	  LDR     R5, [R4]
+  84 0054 45F00105 	  ORR     R5, R5, #1
+  85 0058 2560     	  STR     R5, [R4]
+  86              	  @ Enable NVIC interrupt #6 (external interrupt Line0)
+  87 005a 2A4C     	  LDR     R4, =NVIC_ISER
+  88 005c 4FF04005 	  MOV     R5, #(1<<6)
+  89 0060 2560     	  STR     R5, [R4]
+  90              	
+  91              	
+  92              	
+  93              	.equ     currentPin, LD4_PIN @ set currentPin to LD3_PIN
+  94 0062 00F002F8 	  BL      enableLED          @ enable the currentPin
+  95              	
+  96              	Idle_Loop:
+  97 0066 FEE7     	  B     Idle_Loop
+  98              	End_Main:
+  99 0068 30BD     	  POP   {R4-R5,PC}
+ 100              	
+ 101              	
+ 102              	
+ 103              	
+ 104              	
+ 105              	
+ 106              	
+ 107              	
+ 108              	
+ 109              	/*Subroutines & Interrupts */
+ 110              	
+ 111              	
+ 112              	
+ 113              	
+ 114              	
+ 115              	
+ 116              	
+ 117              	
+ 118              	
+ 119              	  @ enableLed subroutine
+ 120              	  @ enables the desired LED for output
+ 121              	  @ parameters: 
+ 122              	  @   R0, LED Label
+ 123              	  @ return
+ 124              	
+ 125              	enableLED:
+ 126              	  @  Configure LD3 for output
+ 127              	  @   by setting bits 27:26 of GPIOE_MODER to 01 (GPIO Port E Mode Register)
+ 128              	  @   (by BIClearing then ORRing)
+ 129 006a 30B5     	  PUSH    {R4-R5,LR}
+ 130 006c 264C     	  LDR     R4, =GPIOE_MODER
+ 131 006e 2568     	  LDR     R5, [R4]                    @ Read ...
+ 132 0070 25F44035 	  BIC     R5, #(0b11<<(currentPin*2))    @ Modify ...
+ 133 0074 45F48035 	  ORR     R5, #(0b01<<(currentPin*2))    @ write 01 to bits 
+ 134 0078 2560     	  STR     R5, [R4]                    @ Write 
+ 135 007a 30BD     	  POP    {R4-R5,PC}
+ 136              	
+ 137              	
+ 138              	
+ 139              	
+ 140              	
+ 141              	
+ 142              	
+ 143              	
+ 144              	
+ 145              	
+ 146              	@
+ 147              	@ SysTick interrupt handler (blink currentLED)
+ 148              	@
+ 150              	SysTick_Handler:
+ 151 007c 30B5     	  PUSH  {R4, R5, LR}
+ 152 007e 194C     	  LDR   R4, =blink_countdown        @ if (countdown != 0) {
+ 153 0080 2568     	  LDR   R5, [R4]                    @
+ 154 0082 002D     	  CMP   R5, #0                      @
+ 155 0084 03D0     	  BEQ   .LelseFire                  @
+ 156 0086 A5F10105 	  SUB   R5, R5, #1                  @   countdown = countdown - 1;
+ 157 008a 2560     	  STR   R5, [R4]                    @
+ 158 008c 14E0     	  B     .LendIfDelay                @ }
+ 159              	.LelseFire:                         @ else {
+ 160 008e 1F4E     	  LDR     R6, = reacted             @
+ 161 0090 3768     	  LDR     R7,  [R6]
+ 162 0092 012F     	  CMP     R7,#1                     @   )
+ 163 0094 04D0     	  BEQ     .LskipInvert              @   if(reacted)
+ 164 0096 1E4C     	  LDR     R4, =GPIOE_ODR            @   Invert LD3
+ 165 0098 2568     	  LDR     R5, [R4]                  @   R5 = boolean on/off
+ 166 009a 85F48075 	  EOR     R5, #(0b1<<(currentPin))  @   GPIOE_ODR = GPIOE_ODR ^ (1<<LD3_PIN);
+ 167 009e 2560     	  STR     R5, [R4]                  @   R5 = !R5
+ 168              	.LskipInvert:
+ 169 00a0 B5F5807F 	  CMP     R5, #(0b1<<(currentPin))
+ 170 00a4 04D0     	  BEQ     .LflashOn
+ 171 00a6 0F4C     	  LDR     R4, =blink_countdown      @   countdown = FLASH_OFF;:
+ 172 00a8 40F2DC55 	  LDR     R5, = FLASH_OFF_TIMER
+ 173 00ac 2560     	  STR     R5, [R4]  
+ 174 00ae 03E0     	  B       .LendIfDelay
+ 175              	.LflashOn:
+ 176 00b0 0C4C     	  LDR     R4, =blink_countdown      @   countdown = BLINK_PERIOD;:
+ 177 00b2 4FF4FA75 	  LDR     R5, = FLASH_ON_TIMER
+ 178 00b6 2560     	  STR     R5, [R4] 
+ 179              	                  @
+ 180              	.LendIfDelay:                       @ }
+ 181 00b8 0B4C     	  LDR     R4, =SCB_ICSR             @ Clear (acknowledge) the interrupt
+ 182 00ba 4FF00075 	  LDR     R5, =SCB_ICSR_PENDSTCLR   @
+ 183 00be 2560     	  STR     R5, [R4]                  @
+ 184              	  @ Return from interrupt handler
+ 185 00c0 30BD     	  POP  {R4, R5, PC}
+ 186              	
+ 187              	
+ 188              	
+ 189              	
+ 190              	
+ 191              	
+ 192              	@
+ 193              	@ External interrupt line 0 interrupt handler
+ 194              	@   (Check if player reacted to LED)
+ 195              	@
+ 197              	EXTI0_IRQHandler:
+ 198 00c2 30B5     	  PUSH  {R4,R5,LR}
+ 199 00c4 124C     	  LDR   R4, =GPIOE_ODR
+ 200 00c6 2568     	  LDR   R5, [R4]
+ 201 00c8 B5F5807F 	  CMP   R5, #(0b1<<(currentPin))
+ 202 00cc 03D1     	  BNE   .LledNotOn
+ 203 00ce 0F4C     	  LDR   R4, = reacted
+ 204 00d0 4FF00105 	  MOV   R5, #1
+ 205 00d4 2560     	  STR   R5, [R4]
+ 206              	  .LledNotOn:
+ 207 00d6 0F4C     	  LDR   R4, =EXTI_PR                @ Clear (acknowledge) the interrupt
+ 208 00d8 4FF00105 	  MOV   R5, #(1<<0)                 @
+ 209 00dc 2560     	  STR   R5, [R4]                    @
+ 210              	  @ Return from interrupt handler
+ 211 00de 30BD     	  POP  {R4,R5,PC}
+ 212              	
+ 213              	
+ 214              	  .section .data
+ 215              	  
+ 216              	
+ 217              	
+ 218              	blink_countdown:
+ 219 0000 00000000 	  .space  4
+ 220              	reacted:
+ 221 0004 00000000 	  .space 4
+ 222              	
+ 223              	
+ 224              	
+ 225              	  .end...
+DEFINED SYMBOLS
+        ./src/game.s:27     .text:00000000 Main
+        ./src/game.s:150    .text:0000007c SysTick_Handler
+        ./src/game.s:197    .text:000000c2 EXTI0_IRQHandler
+ ./src/definitions.s:1      *ABS*:48001000 GPIOE_BASE
+ ./src/definitions.s:2      *ABS*:48001000 GPIOE_MODER
+ ./src/definitions.s:3      *ABS*:48001004 GPIOE_OTYPER
+ ./src/definitions.s:4      *ABS*:48001008 GPIOE_OSPEEDR
+ ./src/definitions.s:5      *ABS*:4800100c GPIOE_PUPDR
+ ./src/definitions.s:6      *ABS*:48001010 GPIOE_IDR
+ ./src/definitions.s:7      *ABS*:48001014 GPIOE_ODR
+ ./src/definitions.s:8      *ABS*:48001018 GPIOE_BSRR
+ ./src/definitions.s:9      *ABS*:4800101c GPIOE_LCKR
+ ./src/definitions.s:10     *ABS*:48001020 GPIOE_AFRL
+ ./src/definitions.s:11     *ABS*:48001024 GPIOE_AFRH
+ ./src/definitions.s:13     *ABS*:40021000 RCC_BASE
+ ./src/definitions.s:14     *ABS*:40021014 RCC_AHBENR
+ ./src/definitions.s:15     *ABS*:00000015 RCC_AHBENR_GPIOEEN_BIT
+ ./src/definitions.s:17     *ABS*:e000e010 SYSTICK_BASE
+ ./src/definitions.s:18     *ABS*:e000e010 SYSTICK_CSR
+ ./src/definitions.s:19     *ABS*:e000e014 SYSTICK_LOAD
+ ./src/definitions.s:20     *ABS*:e000e018 SYSTICK_VAL
+ ./src/definitions.s:22     *ABS*:40010000 SYSCFG_BASE
+ ./src/definitions.s:23     *ABS*:40010008 SYSCFG_EXTIICR1
+ ./src/definitions.s:25     *ABS*:e000e100 NVIC_ISER
+ ./src/definitions.s:27     *ABS*:40010400 EXTI_BASE
+ ./src/definitions.s:28     *ABS*:40010400 EXTI_IMR
+ ./src/definitions.s:29     *ABS*:40010408 EXTI_RTSR
+ ./src/definitions.s:30     *ABS*:4001040c EXTI_FTSR
+ ./src/definitions.s:31     *ABS*:40010414 EXTI_PR
+ ./src/definitions.s:33     *ABS*:00000009 LD3_PIN
+ ./src/definitions.s:34     *ABS*:00000008 LD4_PIN
+ ./src/definitions.s:35     *ABS*:0000000a LD5_PIN
+ ./src/definitions.s:36     *ABS*:0000000f LD6_PIN
+ ./src/definitions.s:37     *ABS*:0000000b LD7_PIN
+ ./src/definitions.s:38     *ABS*:0000000e LD8_PIN
+ ./src/definitions.s:39     *ABS*:0000000c LD9_PIN
+ ./src/definitions.s:40     *ABS*:0000000d LD10_PIN
+ ./src/definitions.s:42     *ABS*:e000ed00 SCB_BASE
+ ./src/definitions.s:43     *ABS*:e000ed04 SCB_ICSR
+ ./src/definitions.s:44     *ABS*:02000000 SCB_ICSR_PENDSTCLR
+        ./src/game.s:21     *ABS*:000005dc FLASH_OFF_TIMER
+        ./src/game.s:22     *ABS*:000001f4 FLASH_ON_TIMER
+        ./src/game.s:28     .text:00000000 $t
+        ./src/game.s:218    .data:00000000 blink_countdown
+        ./src/game.s:93     *ABS*:00000008 currentPin
+        ./src/game.s:125    .text:0000006a enableLED
+        ./src/game.s:96     .text:00000066 Idle_Loop
+        ./src/game.s:98     .text:00000068 End_Main
+        ./src/game.s:220    .data:00000004 reacted
+        ./src/game.s:219    .data:00000000 $d
+        ./src/game.s:225    .text:000000e0 $d
+
+NO UNDEFINED SYMBOLS
