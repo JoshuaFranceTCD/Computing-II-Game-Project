@@ -18,16 +18,13 @@
 
   .section .text
   
-  .equ    FLASH_OFF_TIMER   , 1500
-  .equ    FLASH_ON_TIMER   , 500
-  
-  //.equ    BLINK_PERIOD, FLASH_OFF   @ blink time = 1000 ms
-  
-
+  .equ    FLASH_OFF_TIMER  , 1500      // length of time the flash remains of(static)
+  .equ    FLASH_ON_TIMER   , 500       // length of time the light flashes on (changes depending on the level)
 Main:
   PUSH  {R4-R5,LR}
 
 
+  /*************************************   SET UP  *************************************************8*/
   @
   @ Prepare GPIO Port E Pin 9 for output (LED LD3)
   @ We'll blink LED LD3 (the orange LED)
@@ -37,14 +34,14 @@ Main:
   LDR     R5, [R4]
   ORR     R5, R5, #(0b1 << (RCC_AHBENR_GPIOEEN_BIT))
   STR     R5, [R4]
-  
-  
-
-
   @ Initialise the first countdown
   LDR     R4, =blink_countdown
   LDR     R5, =FLASH_OFF_TIMER
   STR     R5, [R4]  
+
+
+
+
   @ Configure SysTick Timer to generate an interrupt every 1ms
   LDR     R4, =SCB_ICSR               @ Clear any pre-existing interrupts
   LDR     R5, =SCB_ICSR_PENDSTCLR     @
@@ -62,7 +59,9 @@ Main:
   LDR     R5, =0x7                    @     set CLKSOURCE (bit 2) to system clock (1)
   STR     R5, [R4]                    @     set TICKINT (bit 1) to 1 to enable interrupts
                                       @     set ENABLE (bit 0) to 1
-  @
+
+
+
   @ Prepare external interrupt Line 0 (USER pushbutton)
   @ 
   @ Configure USER pushbutton (GPIO Port A Pin 0 on STM32F3 Discovery
@@ -90,23 +89,47 @@ Main:
 
 
 
-.equ     currentPin, LD4_PIN @ set currentPin to LD3_PIN
-  BL      enableLED          @ enable the currentPin
+/****************************************** Main Program *************************************************/
 
-Idle_Loop:
-  B     Idle_Loop
+
+.equ     currentPin, LD3_PIN  @ set currentPin to LD3_PIN
+  BL      enableLED           @ enable the currentPin
+
+// loop continously until player reacts correctly
+level1:
+  LDR   R4, =reacted 
+  LDR   R5, [R4]
+  CMP   R5, #1
+  BEQ   endLevel1
+  B     level1
+endLevel1:
+
+  
+   
+  .equ     FLASH_ON_TIMER, 200  @ FLASH_ON_TIMER = 200 (flash on timer becomes smaller each time)
+
+  .equ     currentPin, LD4_PIN  @ set currentPin to LD4_PIN
+   BL      enableLED            @ enable the currentPin
+
+   MOV   R5,#0
+   LDR   R5, [R4]                @ reacted = 0  
+
+level2:
+  LDR   R4, = reacted 
+  LDR   R5, [R4]
+  CMP   R5, #1
+  BEQ   endLevel2
+  B     level2
+endLevel2:
+
+
+// level 3, 4 etc
+
 End_Main:
   POP   {R4-R5,PC}
 
 
-
-
-
-
-
-
-
-/*Subroutines & Interrupts */
+/*******************************Subroutines & Interrupts **********************/
 
 
 
@@ -116,11 +139,12 @@ End_Main:
 
 
 
-  @ enableLed subroutine
+  @ enableLed subroutine:
+
   @ enables the desired LED for output
   @ parameters: 
-  @   R0, LED Label
-  @ return
+  @   currentPin
+
 
 enableLED:
   @  Configure LD3 for output
@@ -160,24 +184,24 @@ SysTick_Handler:
   LDR     R6, = reacted             @
   LDR     R7,  [R6]
   CMP     R7,#1                     @   )
-  BEQ     .LskipInvert              @   if(reacted)
-  LDR     R4, =GPIOE_ODR            @   Invert LD3
-  LDR     R5, [R4]                  @   R5 = boolean on/off
-  EOR     R5, #(0b1<<(currentPin))  @   GPIOE_ODR = GPIOE_ODR ^ (1<<LD3_PIN);
-  STR     R5, [R4]                  @   R5 = !R5
-.LskipInvert:
-  CMP     R5, #(0b1<<(currentPin))
-  BEQ     .LflashOn
-  LDR     R4, =blink_countdown      @   countdown = FLASH_OFF;:
-  LDR     R5, = FLASH_OFF_TIMER
-  STR     R5, [R4]  
-  B       .LendIfDelay
+  BEQ     .LskipInvert              @   if(reacted) Invert LD3L
+  LDR     R4, =GPIOE_ODR            @   {
+  LDR     R5, [R4]                  @   ledStatus = on/off
+  EOR     R5, #(0b1<<(currentPin))  @   GPIOE_ODR = GPIOE_ODR ^ (1<<currentPin);
+  STR     R5, [R4]                  @   ledStatus = !ledStatus
+.LskipInvert:                       @   }
+  CMP     R5, #(0b1<<(currentPin))  @   if(ledStatus = off)
+  BEQ     .LflashOn                 @   {
+  LDR     R4, =blink_countdown      @     
+  LDR     R5, = FLASH_OFF_TIMER     @
+  STR     R5, [R4]                  @     countdown = FLASH_OFF_TIMER;
+  B       .LendIfDelay              @   }
 .LflashOn:
-  LDR     R4, =blink_countdown      @   countdown = BLINK_PERIOD;:
+  LDR     R4, =blink_countdown      @   else{
   LDR     R5, = FLASH_ON_TIMER
-  STR     R5, [R4] 
-                  @
-.LendIfDelay:                       @ }
+  STR     R5, [R4]                  @   countdown = FLASH_ON_TIMER;
+                                    @
+.LendIfDelay:                       @     }
   LDR     R4, =SCB_ICSR             @ Clear (acknowledge) the interrupt
   LDR     R5, =SCB_ICSR_PENDSTCLR   @
   STR     R5, [R4]                  @
@@ -185,13 +209,9 @@ SysTick_Handler:
   POP  {R4, R5, PC}
 
 
-
-
-
-
 @
-@ External interrupt line 0 interrupt handler
-@   (Check if player reacted to LED)
+@ External interrupt line 0 interrupt handler(Push Button Handler)
+@   (Check if player pressed the button on time)
 @
   .type  EXTI0_IRQHandler, %function
 EXTI0_IRQHandler:
@@ -211,10 +231,9 @@ EXTI0_IRQHandler:
   POP  {R4,R5,PC}
 
 
+
+// memoryAddresses
   .section .data
-  
-
-
 blink_countdown:
   .space  4
 reacted:
