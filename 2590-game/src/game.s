@@ -91,6 +91,7 @@ Main:
 
 /****************************************** Main Program *************************************************/
 
+  MOV    R6,#0                @ create points variable
 
 .equ     currentPin, LD3_PIN  @ set currentPin to LD3_PIN
   BL      enableLED           @ enable the currentPin
@@ -103,8 +104,7 @@ level1:
   BEQ   endLevel1
   B     level1
 endLevel1:
-
-  
+  ADD   R6,R6,#1                @ level 1 completed, points++;
    
   .equ     FLASH_ON_TIMER, 200  @ FLASH_ON_TIMER = 200 (flash on timer becomes smaller each time)
 
@@ -112,7 +112,7 @@ endLevel1:
    BL      enableLED            @ enable the currentPin
 
    MOV   R5,#0
-   LDR   R5, [R4]                @ reacted = 0  
+   LDR   R5, [R4]               @ reacted = 0  
 
 level2:
   LDR   R4, = reacted 
@@ -121,9 +121,28 @@ level2:
   BEQ   endLevel2
   B     level2
 endLevel2:
-
+  ADD   R6,R6,#1                @ level 2 completed, points++;
 
 // level 3, 4 etc
+
+// C. Quinn, created ending sequence, 13:00, 06/04/2024
+  CMP       R6,#1                   @ if score > 1, flash first LED
+  BLS       End_Main
+  .equ      currentPin, LD3_PIN     @ set currentPin to LD3_PIN
+  BL        enableLED               @ enable the currentPin
+  CMP       R6,#2                   @ if score > 2, flash second LED
+  BLS       End_Main
+  .equ      currentPin, LD4_PIN     @ set currentPin to LD3_PIN
+  BL        enableLED               @ enable the currentPin
+  CMP       R6,#3                   @ if score > 3, flash third LED
+  BLS       End_Main
+  .equ      currentPin, LD5_PIN     @ set currentPin to LD3_PIN
+  BL        enableLED               @ enable the currentPin
+  CMP       R6,#4                   @ if score > 4, flash third LED
+  BLS       End_Main
+  .equ      currentPin, LD6_PIN     @ set currentPin to LD3_PIN
+  BL        enableLED               @ enable the currentPin
+
 
 End_Main:
   POP   {R4-R5,PC}
