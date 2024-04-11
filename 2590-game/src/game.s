@@ -18,12 +18,10 @@
 
   .section .text
   .equ     currentPin, LD3_PIN  @ set currentPin to LD3_PIN
-  .equ    FLASH_OFF_TIMER  , 1500      // length of time the flash remains of(static)
-  .equ    FLASH_ON_TIMER   , 500       // length of time the light flashes on (changes depending on the level)
-Main:
+  .equ    FLASH_OFF_TIMER  , 1500      // length of time the flash remains of(static)Main:
   PUSH  {R4-R5,LR}
 
-
+  Main:
   /*************************************   SET UP  *************************************************8*/
   @
   @ Prepare GPIO Port E Pin 9 for output (LED LD3)
@@ -35,8 +33,12 @@ Main:
   ORR     R5, R5, #(0b1 << (RCC_AHBENR_GPIOEEN_BIT))
   STR     R5, [R4]
   @ Initialise the first countdown
+
+
+
   LDR     R4, =blink_countdown
   LDR     R5, =FLASH_OFF_TIMER
+
   STR     R5, [R4]  
 
 
@@ -91,19 +93,24 @@ Main:
 
 /****************************************** Main Program *************************************************/
 
+  LDR     R4, =GPIOE_MODER
+  LDR     R8, [R4]           // R8 contains the value of the GPIOE_MODER when all the LEDs are OFF
+  // you could load the value of the GPIOE_MODER when all the LEDs are on(at the end of the sequence) and just alternate between
+  // the two for the ending sequence if you want to do it that way
+
+
+  LDR   R4, = FLASH_ON_TIMER
+  MOV   R5, #500
+  STR   R5, [R4]
+
+
   MOV    R6,#0                @ create points variable
   LDR   R4, = reacted 
   LDR   R5, [R4]
   MOV   R5, #0
   STR   R5, [R4]
 
-  
-  LDR     R4, =GPIOE_ODR            @   {
-  LDR     R7, [R4]                  @   ledStatus = on/off
 
-
-
- //.equ     currentPin, LD3_PIN  @ set currentPin to LD3_PIN
   MOV   R0, LD3_PIN                @ currentPin = LD3_PIN
   BL      enableLED           @ enable the currentPin
 
@@ -116,10 +123,11 @@ level1:
   B     level1
 endLevel1:
 
-  MOV   R6,#1                @ level 1 completed, points++;
+  LDR   R4, = FLASH_ON_TIMER
+  MOV   R5, #475
+  STR   R5, [R4]
 
-  //.equ     FLASH_ON_TIMER, 200  @ FLASH_ON_TIMER = 200 (flash on timer becomes smaller each time)
-  //.equ     currentPin, LD4_PIN  @ set currentPin to LD4_PIN
+  MOV   R6,#1                @ level 1 completed, points++;
 
 
 
@@ -128,36 +136,33 @@ endLevel1:
   MOV   R5, #0
   STR   R5, [R4]
 
- //.equ     currentPin, LD3_PIN  @ set currentPin to LD3_PIN
   MOV   R0, LD4_PIN                @ currentPin = LD3_PIN
   MOV   R1, R6
   BL    enableLED           @ enable the currentPin
 
-  LDR     R4, =GPIOE_ODR            @   {
-  STR     R7, [R4]                  @   ledStatus = on/off
-
  level2:
-    LDR   R4, = reacted 
-    LDR   R5, [R4]
-    CMP   R5, #1
-    BEQ   endLevel2
-    B     level2
+  LDR   R4, = reacted 
+  LDR   R5, [R4]
+  CMP   R5, #1
+  BEQ   endLevel2
+  B     level2
 endLevel2:
-  ADD   R6,R6,#1                @ level 2 completed, points++;
+  ADD     R6,R6,#1                @ level 2 completed, points++;
 
-  LDR     R4, =GPIOE_ODR            @   {
-  STR     R7, [R4]                  @   ledStatus = on/off
+  LDR   R4, = FLASH_ON_TIMER
+  MOV   R5, #450
+  STR   R5, [R4]
 
-  MOV   R0, LD6_PIN                @ currentPin = LD3_PIN
-  MOV   R1, R6
+  MOV     R0, LD6_PIN                @ currentPin = LD3_PIN
+  MOV     R1, R6
   BL      enableLED            @ enable the currentPin
 
-  LDR   R4, = reacted 
+  LDR     R4, = reacted 
   MOV     R5,#0
   STR     R5, [R4]               @ reacted = 0  
 
 level3:
-  LDR   R4, = reacted 
+  LDR   R4, =reacted 
   LDR   R5, [R4]
   CMP   R5, #1
   BEQ   endLevel3
@@ -165,9 +170,12 @@ level3:
 endLevel3:
   ADD   R6,R6,#1                @ level 3 completed, points++;
 
+  LDR   R4, = FLASH_ON_TIMER
+  MOV   R5, #425
+  STR   R5, [R4]
+
  //.equ    FLASH_ON_TIMER, 100  @ FLASH_ON_TIMER = 100 (flash on timer becomes smaller each time)
-  LDR     R4, =GPIOE_ODR            @   {
-  STR     R7, [R4]                  @   ledStatus = on/off
+
   MOV   R0, LD8_PIN                @ currentPin = LD3_PIN
   BL      enableLED            @ enable the currentPin
   MOV     R5,#0
@@ -180,12 +188,12 @@ level4:
   BEQ   endLevel4
   B     level4
 endLevel4:
-  ADD   R6,R6,#1                @ level 3 completed, points++;
-LDR     R4, =GPIOE_ODR            @   {
-  STR     R7, [R4]                  @   ledStatus = on/off
-  //.equ    FLASH_ON_TIMER, 75  @ FLASH_ON_TIMER =75 (flash on timer becomes smaller each time)
- // .equ    currentPin, LD7_PIN  @ set currentPin to LD7_PIN
- MOV   R0, LD8_PIN                @ currentPin = LD3_PIN
+
+  LDR   R4, = FLASH_ON_TIMER
+  MOV   R5, #400
+  STR   R5, [R4]
+
+  MOV   R0, LD8_PIN                @ currentPin = LD8 [_PIN
   BL      enableLED            @ enable the currentPin
   LDR   R4, = reacted 
   MOV     R5,#0
@@ -199,14 +207,15 @@ level5:
   B     level5
 endLevel5:
   ADD   R6,R6,#1                @ level 3 completed, points++;
-  LDR     R4, =GPIOE_ODR            @   {
-  STR     R7, [R4]                  @   ledStatus = on/off
 
+  LDR   R4, = FLASH_ON_TIMER
+  MOV   R5, #375
+  STR   R5, [R4]
  // .equ    FLASH_ON_TIMER, 50 @ FLASH_ON_TIMER = 50 (flash on timer becomes smaller each time)
  // .equ    currentPin, LD8_PIN  @ set currentPin to LD8_PIN
-  MOV   R0, LD10_PIN                @ currentPin = LD3_PIN
+  MOV     R0, LD10_PIN                @ currentPin = LD3_PIN
   BL      enableLED            @ enable the currentPin
-  LDR   R4, = reacted 
+  LDR     R4, = reacted 
   MOV     R5,#0
   STR     R5, [R4]               @ reacted = 0  
 
@@ -217,9 +226,11 @@ level6:
   BEQ   endLevel6
   B     level6
 endLevel6:
-  ADD   R6,R6,#1                @ level 3 completed, points++;
-    LDR     R4, =GPIOE_ODR            @   {
-  STR     R7, [R4]                  @   ledStatus = on/off
+
+  LDR   R4, = FLASH_ON_TIMER
+  MOV   R5, #350
+  STR   R5, [R4]
+
  // .equ    FLASH_ON_TIMER, 35  @ FLASH_ON_TIMER = 35 (flash on timer becomes smaller each time)
  // .equ    currentPin, LD9_PIN  @ set currentPin to LD9_PIN
  MOV   R0, LD9_PIN                @ currentPin = LD3_PIN
@@ -236,9 +247,10 @@ level7:
   BEQ   endLevel7
   B     level7
 endLevel7:
-  ADD   R6,R6,#1                @ level 3 completed, points++;
-    LDR     R4, =GPIOE_ODR            @   {
-  STR     R7, [R4]                  @   ledStatus = on/off
+  LDR   R4, = FLASH_ON_TIMER
+  MOV   R5, #200
+  STR   R5, [R4]
+
  // .equ    FLASH_ON_TIMER, 25  @ FLASH_ON_TIMER = 25 (flash on timer becomes smaller each time)
  // .equ    currentPin, LD10_PIN  @ set currentPin to LD10_PIN
  MOV   R0, LD7_PIN                @ currentPin = LD3_PIN
@@ -257,18 +269,17 @@ level8:
 endLevel8:
   ADD   R6,R6,#1                @ level 3 completed, points++;
 
-  //
-LDR     R4, =GPIOE_ODR            @   {
-STR     R7, [R4]                  @   ledStatus = on/off
+   LDR   R4, = FLASH_ON_TIMER
+  MOV   R5, #100
+  STR   R5, [R4]
+
  // .equ    FLASH_ON_TIMER, 25  @ FLASH_ON_TIMER = 25 (flash on timer becomes smaller each time)
  // .equ    currentPin, LD10_PIN  @ set currentPin to LD10_PIN
- MOV   R0, LD5_PIN                @ currentPin = LD3_PIN
+  MOV     R0, LD5_PIN                @ currentPin = LD3_PIN
   BL      enableLED            @ enable the currentPin
-  LDR   R4, = reacted 
+  LDR     R4, = reacted 
   MOV     R5,#0
   STR     R5, [R4]               @ reacted = 0  
-
-
 level9:
   LDR   R4, = reacted 
   LDR   R5, [R4]
@@ -277,6 +288,10 @@ level9:
   B     level9
 endLevel9:
   ADD   R6,R6,#1                @ level 3 completed, points++;
+
+  LDR   R4, = FLASH_ON_TIMER
+  MOV   R5, #50
+  STR   R5, [R4]
   
 
 
@@ -331,6 +346,7 @@ enableLED:
   @   
   @       paramateres
   @       R0 currentLED
+
   PUSH    {R0-R6,LR}
   LDR     R4, =GPIOE_MODER
   LDR     R5, [R4]                    @ Read ..
@@ -363,7 +379,7 @@ enableLED:
   .type  SysTick_Handler, %function
 SysTick_Handler:
   PUSH  {R0-R9, LR}
-  //MOV   R8, R0                      @ copy of currentLED             
+                                    @ copy of currentLED             
   LDR   R4, =blink_countdown        @ if (countdown != 0) {
   LDR   R5, [R4]                    @
   CMP   R5, #0                      @
@@ -381,14 +397,15 @@ SysTick_Handler:
 
   MOV     R6, #0b1
   MOV     R6, R6, LSL R0
-  EOR     R5,R6                //EOR     R5, #(0b1<<(currentPin))  @   GPIOE_ODR = GPIOE_ODR ^ (1<<currentPin);
+  EOR     R5,R6                       //EOR     R5, #(0b1<<(currentPin))  @   GPIOE_ODR = GPIOE_ODR ^ (1<<currentPin);
 
   STR     R5, [R4]                  @   ledStatus = !ledStatus
 .LskipInvert:                       @   }
 
   MOV     R6, #0b1
   MOV     R6, R6, LSL R0
-  CMP     R5,R6//CMP     R5, #(0b1<<(currentPin))  @   if(ledStatus = off)
+  AND     R5, R6
+  CMP     R5,R6                     @CMP     R5, #(0b1<<(currentPin))  @   if(ledStatus = off)
   
   BEQ     .LflashOn                 @   {
   LDR     R4, =blink_countdown      @     
@@ -398,13 +415,13 @@ SysTick_Handler:
 .LflashOn:
   LDR     R4, =blink_countdown      @   else{
   LDR     R5, = FLASH_ON_TIMER
+  LDR     R5, [R5]
   STR     R5, [R4]                  @   countdown = FLASH_ON_TIMER;
                                     @
 .LendIfDelay:                       @     }
   LDR     R4, =SCB_ICSR             @ Clear (acknowledge) the interrupt
   LDR     R5, =SCB_ICSR_PENDSTCLR   @
   STR     R5, [R4]                  @
-  //MOV     R0, R8                    @ ensure R0 still contains currentLed at the end
   @ Return from interrupt handler
   POP  {R0-R9, PC}
 
@@ -419,20 +436,12 @@ SysTick_Handler:
   @     R1 - level
 EXTI0_IRQHandler:
   PUSH  {R0-R6,LR}
-
   LDR   R4, =GPIOE_ODR
   LDR   R5, [R4]
-
-
-
   MOV   R6, #0b1
   MOV   R6, R6, LSL R0
-
-
-
-
-
-  CMP   R5, R6 //CMP   R5, #(0b1<<(currentPin))
+  AND   R5, R6
+  CMP   R5, R6                        //CMP   R5, #(0b1<<(currentPin))
   BNE   .LledNotOn
   LDR   R4, = reacted
   MOV   R5, #1
@@ -441,37 +450,17 @@ EXTI0_IRQHandler:
   LDR   R4, =EXTI_PR                @ Clear (acknowledge) the interrupt
   MOV   R5, #(1<<0)                 @
   STR   R5, [R4]                    @
-  
   @ Return from interrupt handler
   POP  {R0-R6,PC}
-/* 
-  @ Shift Multiple
-@   parameters
-@       R0 - shiftValue
-@       R1 - mask
-@   return 
-@       R0 - shifted Value
-shiftMultiple:
-  PUSH  {R4,R5,LR}
-  
-  MOV     R4, R0      @ counter = shiftValue
-  .LwhileShift:
-  CMP     R4, #0
-  BLE    .LendShift
-  MOV     R1, R1, LSL #1
-  SUB     R4, #1
-  B       .LwhileShift
-  .LendShift:
-  MOV     R0, R1
 
-  POP  {R4,R5,PC}
-*/
 
 // memoryAddresses
   .section .data
 blink_countdown:
   .space  4
 reacted:
+  .space 4
+FLASH_ON_TIMER:
   .space 4
 
 

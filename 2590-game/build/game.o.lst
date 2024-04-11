@@ -1,6 +1,6 @@
    1              	# 0 "./src/game.s"
-   2              	# 1 "/Users/ciaraquinn/SynologyDrive/github/Computing-II-Game-Project/2590-game//"
-   1              	...
+   2              	# 1 "C:\\Users\\jfrance\\OneDrive - Trinity College Dublin\\Computing-II-Game-Project\\2590-game//"
+   0              	
    0              	
    0              	
    1              	# PASTE LINK TO TEAM VIDEO BELOW
@@ -66,252 +66,451 @@
   17              	  
   18              	
   19              	  .section .text
-  20              	  
-  21              	  .equ    FLASH_OFF_TIMER  , 1500      // length of time the flash remains of(static)
-  22              	  .equ    FLASH_ON_TIMER   , 500       // length of time the light flashes on (changes depending on
-  23              	Main:
-  24 0000 30B5     	  PUSH  {R4-R5,LR}
-  25              	
-  26              	
-  27              	  /*************************************   SET UP  ************************************************
-  28              	  @
-  29              	  @ Prepare GPIO Port E Pin 9 for output (LED LD3)
-  30              	  @ We'll blink LED LD3 (the orange LED)
-  31              	  @
-  32              	  @ Enable GPIO port E by enabling its clock
-  33 0002 494C     	  LDR     R4, =RCC_AHBENR
-  34 0004 2568     	  LDR     R5, [R4]
-  35 0006 45F40015 	  ORR     R5, R5, #(0b1 << (RCC_AHBENR_GPIOEEN_BIT))
-  36 000a 2560     	  STR     R5, [R4]
-  37              	  @ Initialise the first countdown
-  38 000c 474C     	  LDR     R4, =blink_countdown
-  39 000e 40F2DC55 	  LDR     R5, =FLASH_OFF_TIMER
-  40 0012 2560     	  STR     R5, [R4]  
+  20              	  .equ     currentPin, LD3_PIN  @ set currentPin to LD3_PIN
+  21              	  .equ    FLASH_OFF_TIMER  , 1500      // length of time the flash remains of(static)Main:
+  22 0000 30B5     	  PUSH  {R4-R5,LR}
+  23              	
+  24              	  Main:
+  25              	  /*************************************   SET UP  ************************************************
+  26              	  @
+  27              	  @ Prepare GPIO Port E Pin 9 for output (LED LD3)
+  28              	  @ We'll blink LED LD3 (the orange LED)
+  29              	  @
+  30              	  @ Enable GPIO port E by enabling its clock
+  31 0002 9B4C     	  LDR     R4, =RCC_AHBENR
+  32 0004 2568     	  LDR     R5, [R4]
+  33 0006 45F40015 	  ORR     R5, R5, #(0b1 << (RCC_AHBENR_GPIOEEN_BIT))
+  34 000a 2560     	  STR     R5, [R4]
+  35              	  @ Initialise the first countdown
+  36              	
+  37              	
+  38              	
+  39 000c 994C     	  LDR     R4, =blink_countdown
+  40 000e 40F2DC55 	  LDR     R5, =FLASH_OFF_TIMER
   41              	
-  42              	
+  42 0012 2560     	  STR     R5, [R4]  
   43              	
   44              	
-  45              	  @ Configure SysTick Timer to generate an interrupt every 1ms
-  46 0014 464C     	  LDR     R4, =SCB_ICSR               @ Clear any pre-existing interrupts
-  47 0016 4FF00075 	  LDR     R5, =SCB_ICSR_PENDSTCLR     @
-  48 001a 2560     	  STR     R5, [R4]                    @
-  49 001c 454C     	  LDR     R4, =SYSTICK_CSR            @ Stop SysTick timer
-  50 001e 4FF00005 	  LDR     R5, =0                      @   by writing 0 to CSR
-  51 0022 2560     	  STR     R5, [R4]                    @   CSR is the Control and Status Register
-  52 0024 444C     	  LDR     R4, =SYSTICK_LOAD           @ Set SysTick LOAD for 1ms delay
-  53 0026 41F63F75 	  LDR     R5, =7999                   @ Assuming 8MHz clock
-  54 002a 2560     	  STR     R5, [R4]                    @ 
-  55 002c 434C     	  LDR     R4, =SYSTICK_VAL            @   Reset SysTick internal counter to 0
-  56 002e 4FF00105 	  LDR     R5, =0x1                    @     by writing any value
-  57 0032 2560     	  STR     R5, [R4]
-  58 0034 3F4C     	  LDR     R4, =SYSTICK_CSR            @   Start SysTick timer by setting CSR to 0x7
-  59 0036 4FF00705 	  LDR     R5, =0x7                    @     set CLKSOURCE (bit 2) to system clock (1)
-  60 003a 2560     	  STR     R5, [R4]                    @     set TICKINT (bit 1) to 1 to enable interrupts
-  61              	                                      @     set ENABLE (bit 0) to 1
-  62              	
-  63              	
+  45              	
+  46              	
+  47              	  @ Configure SysTick Timer to generate an interrupt every 1ms
+  48 0014 984C     	  LDR     R4, =SCB_ICSR               @ Clear any pre-existing interrupts
+  49 0016 4FF00075 	  LDR     R5, =SCB_ICSR_PENDSTCLR     @
+  50 001a 2560     	  STR     R5, [R4]                    @
+  51 001c 974C     	  LDR     R4, =SYSTICK_CSR            @ Stop SysTick timer
+  52 001e 4FF00005 	  LDR     R5, =0                      @   by writing 0 to CSR
+  53 0022 2560     	  STR     R5, [R4]                    @   CSR is the Control and Status Register
+  54 0024 964C     	  LDR     R4, =SYSTICK_LOAD           @ Set SysTick LOAD for 1ms delay
+  55 0026 41F63F75 	  LDR     R5, =7999                   @ Assuming 8MHz clock
+  56 002a 2560     	  STR     R5, [R4]                    @ 
+  57 002c 954C     	  LDR     R4, =SYSTICK_VAL            @   Reset SysTick internal counter to 0
+  58 002e 4FF00105 	  LDR     R5, =0x1                    @     by writing any value
+  59 0032 2560     	  STR     R5, [R4]
+  60 0034 914C     	  LDR     R4, =SYSTICK_CSR            @   Start SysTick timer by setting CSR to 0x7
+  61 0036 4FF00705 	  LDR     R5, =0x7                    @     set CLKSOURCE (bit 2) to system clock (1)
+  62 003a 2560     	  STR     R5, [R4]                    @     set TICKINT (bit 1) to 1 to enable interrupts
+  63              	                                      @     set ENABLE (bit 0) to 1
   64              	
-  65              	  @ Prepare external interrupt Line 0 (USER pushbutton)
-  66              	  @ 
-  67              	  @ Configure USER pushbutton (GPIO Port A Pin 0 on STM32F3 Discovery
-  68              	  @   kit) to use the EXTI0 external interrupt signal
-  69              	  @ Determined by bits 3..0 of the External Interrrupt Control
-  70              	  @   Register (EXTIICR)
-  71 003c 404C     	  LDR     R4, =SYSCFG_EXTIICR1
-  72 003e 2568     	  LDR     R5, [R4]
-  73 0040 25F00F05 	  BIC     R5, R5, #0b1111
-  74 0044 2560     	  STR     R5, [R4]
-  75              	  @ Enable (unmask) interrupts on external interrupt Line0
-  76 0046 3F4C     	  LDR     R4, =EXTI_IMR
-  77 0048 2568     	  LDR     R5, [R4]
-  78 004a 45F00105 	  ORR     R5, R5, #1
-  79 004e 2560     	  STR     R5, [R4]
-  80              	  @ Set falling edge detection on Line0
-  81 0050 3D4C     	  LDR     R4, =EXTI_FTSR
-  82 0052 2568     	  LDR     R5, [R4]
-  83 0054 45F00105 	  ORR     R5, R5, #1
-  84 0058 2560     	  STR     R5, [R4]
-  85              	  @ Enable NVIC interrupt #6 (external interrupt Line0)
-  86 005a 3C4C     	  LDR     R4, =NVIC_ISER
-  87 005c 4FF04005 	  MOV     R5, #(1<<6)
-  88 0060 2560     	  STR     R5, [R4]
-  89              	
-  90              	
+  65              	
+  66              	
+  67              	  @ Prepare external interrupt Line 0 (USER pushbutton)
+  68              	  @ 
+  69              	  @ Configure USER pushbutton (GPIO Port A Pin 0 on STM32F3 Discovery
+  70              	  @   kit) to use the EXTI0 external interrupt signal
+  71              	  @ Determined by bits 3..0 of the External Interrrupt Control
+  72              	  @   Register (EXTIICR)
+  73 003c 924C     	  LDR     R4, =SYSCFG_EXTIICR1
+  74 003e 2568     	  LDR     R5, [R4]
+  75 0040 25F00F05 	  BIC     R5, R5, #0b1111
+  76 0044 2560     	  STR     R5, [R4]
+  77              	  @ Enable (unmask) interrupts on external interrupt Line0
+  78 0046 914C     	  LDR     R4, =EXTI_IMR
+  79 0048 2568     	  LDR     R5, [R4]
+  80 004a 45F00105 	  ORR     R5, R5, #1
+  81 004e 2560     	  STR     R5, [R4]
+  82              	  @ Set falling edge detection on Line0
+  83 0050 8F4C     	  LDR     R4, =EXTI_FTSR
+  84 0052 2568     	  LDR     R5, [R4]
+  85 0054 45F00105 	  ORR     R5, R5, #1
+  86 0058 2560     	  STR     R5, [R4]
+  87              	  @ Enable NVIC interrupt #6 (external interrupt Line0)
+  88 005a 8E4C     	  LDR     R4, =NVIC_ISER
+  89 005c 4FF04005 	  MOV     R5, #(1<<6)
+  90 0060 2560     	  STR     R5, [R4]
   91              	
-  92              	/****************************************** Main Program ******************************************
+  92              	
   93              	
-  94 0062 4FF00006 	  MOV    R6,#0                @ create points variable
+  94              	/****************************************** Main Program ******************************************
   95              	
-  96              	.equ     currentPin, LD3_PIN  @ set currentPin to LD3_PIN
-  97 0066 00F024F8 	  BL      enableLED           @ enable the currentPin
-  98              	
-  99              	// loop continously until player reacts correctly
- 100              	level1:
- 101 006a 394C     	  LDR   R4, =reacted 
- 102 006c 2568     	  LDR   R5, [R4]
- 103 006e 012D     	  CMP   R5, #1
- 104 0070 00D0     	  BEQ   endLevel1
- 105 0072 FAE7     	  B     level1
- 106              	endLevel1:
- 107 0074 06F10106 	  ADD   R6,R6,#1                @ level 1 completed, points++;
- 108              	   
- 109              	  .equ     FLASH_ON_TIMER, 200  @ FLASH_ON_TIMER = 200 (flash on timer becomes smaller each time)
+  96 0062 8D4C     	  LDR   R4, = FLASH_ON_TIMER
+  97 0064 4FF4FA75 	  MOV   R5, #500
+  98 0068 2560     	  STR   R5, [R4]
+  99              	
+ 100              	
+ 101 006a 4FF00006 	  MOV    R6,#0                @ create points variable
+ 102 006e 8B4C     	  LDR   R4, = reacted 
+ 103 0070 2568     	  LDR   R5, [R4]
+ 104 0072 4FF00005 	  MOV   R5, #0
+ 105 0076 2560     	  STR   R5, [R4]
+ 106              	
+ 107              	
+ 108 0078 4FF00900 	  MOV   R0, LD3_PIN                @ currentPin = LD3_PIN
+ 109 007c 00F0A0F8 	  BL      enableLED           @ enable the currentPin
  110              	
- 111              	  .equ     currentPin, LD4_PIN  @ set currentPin to LD4_PIN
- 112 0078 00F01BF8 	   BL      enableLED            @ enable the currentPin
- 113              	
- 114 007c 4FF00005 	   MOV   R5,#0
- 115 0080 2568     	   LDR   R5, [R4]               @ reacted = 0  
- 116              	
- 117              	level2:
- 118 0082 334C     	  LDR   R4, = reacted 
- 119 0084 2568     	  LDR   R5, [R4]
- 120 0086 012D     	  CMP   R5, #1
- 121 0088 00D0     	  BEQ   endLevel2
- 122 008a FAE7     	  B     level2
- 123              	endLevel2:
- 124 008c 06F10106 	  ADD   R6,R6,#1                @ level 2 completed, points++;
+ 111              	// loop continously until player reacts correctly
+ 112              	level1:
+ 113 0080 864C     	  LDR   R4, =reacted 
+ 114 0082 2568     	  LDR   R5, [R4]
+ 115 0084 012D     	  CMP   R5, #1
+ 116 0086 00D0     	  BEQ   endLevel1
+ 117 0088 FAE7     	  B     level1
+ 118              	endLevel1:
+ 119              	
+ 120 008a 834C     	  LDR   R4, = FLASH_ON_TIMER
+ 121 008c 40F2DB15 	  MOV   R5, #475
+ 122 0090 2560     	  STR   R5, [R4]
+ 123              	
+ 124 0092 4FF00106 	  MOV   R6,#1                @ level 1 completed, points++;
  125              	
- 126              	// level 3, 4 etc
+ 126              	
  127              	
- 128              	// C. Quinn, created ending sequence, 13:00, 06/04/2024
- 129 0090 012E     	  CMP       R6,#1                   @ if score > 1, flash first LED
- 130 0092 0DD9     	  BLS       End_Main
- 131              	  .equ      currentPin, LD3_PIN     @ set currentPin to LD3_PIN
- 132 0094 00F00DF8 	  BL        enableLED               @ enable the currentPin
- 133 0098 022E     	  CMP       R6,#2                   @ if score > 2, flash second LED
- 134 009a 09D9     	  BLS       End_Main
- 135              	  .equ      currentPin, LD4_PIN     @ set currentPin to LD3_PIN
- 136 009c 00F009F8 	  BL        enableLED               @ enable the currentPin
- 137 00a0 032E     	  CMP       R6,#3                   @ if score > 3, flash third LED
- 138 00a2 05D9     	  BLS       End_Main
- 139              	  .equ      currentPin, LD5_PIN     @ set currentPin to LD3_PIN
- 140 00a4 00F005F8 	  BL        enableLED               @ enable the currentPin
- 141 00a8 042E     	  CMP       R6,#4                   @ if score > 4, flash third LED
- 142 00aa 01D9     	  BLS       End_Main
- 143              	  .equ      currentPin, LD6_PIN     @ set currentPin to LD3_PIN
- 144 00ac 00F001F8 	  BL        enableLED               @ enable the currentPin
+ 128 0096 814C     	  LDR   R4, = reacted 
+ 129 0098 2568     	  LDR   R5, [R4]
+ 130 009a 4FF00005 	  MOV   R5, #0
+ 131 009e 2560     	  STR   R5, [R4]
+ 132              	
+ 133 00a0 4FF00800 	  MOV   R0, LD4_PIN                @ currentPin = LD3_PIN
+ 134 00a4 3146     	  MOV   R1, R6
+ 135 00a6 00F08BF8 	  BL    enableLED           @ enable the currentPin
+ 136              	
+ 137              	 level2:
+ 138 00aa 7C4C     	  LDR   R4, = reacted 
+ 139 00ac 2568     	  LDR   R5, [R4]
+ 140 00ae 012D     	  CMP   R5, #1
+ 141 00b0 00D0     	  BEQ   endLevel2
+ 142 00b2 FAE7     	  B     level2
+ 143              	endLevel2:
+ 144 00b4 06F10106 	  ADD     R6,R6,#1                @ level 2 completed, points++;
  145              	
- 146              	
- 147              	End_Main:
- 148 00b0 30BD     	  POP   {R4-R5,PC}
+ 146 00b8 774C     	  LDR   R4, = FLASH_ON_TIMER
+ 147 00ba 4FF4E175 	  MOV   R5, #450
+ 148 00be 2560     	  STR   R5, [R4]
  149              	
- 150              	
- 151              	/*******************************Subroutines & Interrupts **********************/
- 152              	
+ 150 00c0 4FF00F00 	  MOV     R0, LD6_PIN                @ currentPin = LD3_PIN
+ 151 00c4 3146     	  MOV     R1, R6
+ 152 00c6 00F07BF8 	  BL      enableLED            @ enable the currentPin
  153              	
- 154              	
- 155              	
- 156              	
+ 154 00ca 744C     	  LDR     R4, = reacted 
+ 155 00cc 4FF00005 	  MOV     R5,#0
+ 156 00d0 2560     	  STR     R5, [R4]               @ reacted = 0  
  157              	
- 158              	
- 159              	
- 160              	
- 161              	  @ enableLed subroutine:
- 162              	
- 163              	  @ enables the desired LED for output
- 164              	  @ parameters: 
- 165              	  @   currentPin
+ 158              	level3:
+ 159 00d2 724C     	  LDR   R4, =reacted 
+ 160 00d4 2568     	  LDR   R5, [R4]
+ 161 00d6 012D     	  CMP   R5, #1
+ 162 00d8 00D0     	  BEQ   endLevel3
+ 163 00da FAE7     	  B     level3
+ 164              	endLevel3:
+ 165 00dc 06F10106 	  ADD   R6,R6,#1                @ level 3 completed, points++;
  166              	
- 167              	
- 168              	enableLED:
- 169              	  @  Configure LD3 for output
- 170              	  @   by setting bits 27:26 of GPIOE_MODER to 01 (GPIO Port E Mode Register)
- 171              	  @   (by BIClearing then ORRing)
- 172 00b2 30B5     	  PUSH    {R4-R5,LR}
- 173 00b4 274C     	  LDR     R4, =GPIOE_MODER
- 174 00b6 2568     	  LDR     R5, [R4]                    @ Read ...
- 175 00b8 25F04045 	  BIC     R5, #(0b11<<(currentPin*2))    @ Modify ...
- 176 00bc 45F08045 	  ORR     R5, #(0b01<<(currentPin*2))    @ write 01 to bits 
- 177 00c0 2560     	  STR     R5, [R4]                    @ Write 
- 178 00c2 30BD     	  POP    {R4-R5,PC}
- 179              	
- 180              	
- 181              	
- 182              	
- 183              	
- 184              	
+ 167 00e0 6D4C     	  LDR   R4, = FLASH_ON_TIMER
+ 168 00e2 40F2A915 	  MOV   R5, #425
+ 169 00e6 2560     	  STR   R5, [R4]
+ 170              	
+ 171              	 //.equ    FLASH_ON_TIMER, 100  @ FLASH_ON_TIMER = 100 (flash on timer becomes smaller each time)
+ 172              	
+ 173 00e8 4FF00E00 	  MOV   R0, LD8_PIN                @ currentPin = LD3_PIN
+ 174 00ec 00F068F8 	  BL      enableLED            @ enable the currentPin
+ 175 00f0 4FF00005 	  MOV     R5,#0
+ 176 00f4 2560     	  STR     R5, [R4]               @ reacted = 0  
+ 177              	
+ 178              	level4:
+ 179 00f6 694C     	  LDR   R4, = reacted 
+ 180 00f8 2568     	  LDR   R5, [R4]
+ 181 00fa 012D     	  CMP   R5, #1
+ 182 00fc 00D0     	  BEQ   endLevel4
+ 183 00fe FAE7     	  B     level4
+ 184              	endLevel4:
  185              	
- 186              	
- 187              	
- 188              	
- 189              	@
- 190              	@ SysTick interrupt handler (blink currentLED)
- 191              	@
- 193              	SysTick_Handler:
- 194 00c4 30B5     	  PUSH  {R4, R5, LR}
- 195 00c6 194C     	  LDR   R4, =blink_countdown        @ if (countdown != 0) {
- 196 00c8 2568     	  LDR   R5, [R4]                    @
- 197 00ca 002D     	  CMP   R5, #0                      @
- 198 00cc 03D0     	  BEQ   .LelseFire                  @
- 199 00ce A5F10105 	  SUB   R5, R5, #1                  @   countdown = countdown - 1;
- 200 00d2 2560     	  STR   R5, [R4]                    @
- 201 00d4 14E0     	  B     .LendIfDelay                @ }
- 202              	.LelseFire:                         @ else {
- 203 00d6 1E4E     	  LDR     R6, = reacted             @
- 204 00d8 3768     	  LDR     R7,  [R6]
- 205 00da 012F     	  CMP     R7,#1                     @   )
- 206 00dc 04D0     	  BEQ     .LskipInvert              @   if(reacted) Invert LD3L
- 207 00de 1E4C     	  LDR     R4, =GPIOE_ODR            @   {
- 208 00e0 2568     	  LDR     R5, [R4]                  @   ledStatus = on/off
- 209 00e2 85F40045 	  EOR     R5, #(0b1<<(currentPin))  @   GPIOE_ODR = GPIOE_ODR ^ (1<<currentPin);
- 210 00e6 2560     	  STR     R5, [R4]                  @   ledStatus = !ledStatus
- 211              	.LskipInvert:                       @   }
- 212 00e8 B5F5004F 	  CMP     R5, #(0b1<<(currentPin))  @   if(ledStatus = off)
- 213 00ec 04D0     	  BEQ     .LflashOn                 @   {
- 214 00ee 0F4C     	  LDR     R4, =blink_countdown      @     
- 215 00f0 40F2DC55 	  LDR     R5, = FLASH_OFF_TIMER     @
- 216 00f4 2560     	  STR     R5, [R4]                  @     countdown = FLASH_OFF_TIMER;
- 217 00f6 03E0     	  B       .LendIfDelay              @   }
- 218              	.LflashOn:
- 219 00f8 0C4C     	  LDR     R4, =blink_countdown      @   else{
- 220 00fa 4FF0C805 	  LDR     R5, = FLASH_ON_TIMER
- 221 00fe 2560     	  STR     R5, [R4]                  @   countdown = FLASH_ON_TIMER;
- 222              	                                    @
- 223              	.LendIfDelay:                       @     }
- 224 0100 0B4C     	  LDR     R4, =SCB_ICSR             @ Clear (acknowledge) the interrupt
- 225 0102 4FF00075 	  LDR     R5, =SCB_ICSR_PENDSTCLR   @
- 226 0106 2560     	  STR     R5, [R4]                  @
- 227              	  @ Return from interrupt handler
- 228 0108 30BD     	  POP  {R4, R5, PC}
- 229              	
- 230              	
- 231              	@
- 232              	@ External interrupt line 0 interrupt handler(Push Button Handler)
- 233              	@   (Check if player pressed the button on time)
- 234              	@
- 236              	EXTI0_IRQHandler:
- 237 010a 30B5     	  PUSH  {R4,R5,LR}
- 238 010c 124C     	  LDR   R4, =GPIOE_ODR
- 239 010e 2568     	  LDR   R5, [R4]
- 240 0110 B5F5004F 	  CMP   R5, #(0b1<<(currentPin))
- 241 0114 03D1     	  BNE   .LledNotOn
- 242 0116 0E4C     	  LDR   R4, = reacted
- 243 0118 4FF00105 	  MOV   R5, #1
- 244 011c 2560     	  STR   R5, [R4]
- 245              	  .LledNotOn:
- 246 011e 0F4C     	  LDR   R4, =EXTI_PR                @ Clear (acknowledge) the interrupt
- 247 0120 4FF00105 	  MOV   R5, #(1<<0)                 @
- 248 0124 2560     	  STR   R5, [R4]                    @
- 249              	  @ Return from interrupt handler
- 250 0126 30BD     	  POP  {R4,R5,PC}
- 251              	
- 252              	
- 253              	
- 254              	// memoryAddresses
- 255              	  .section .data
- 256              	blink_countdown:
- 257 0000 00000000 	  .space  4
- 258              	reacted:
- 259 0004 00000000 	  .space 4
- 260              	
- 261              	
- 262              	
- 263              	  .end...
+ 186 0100 654C     	  LDR   R4, = FLASH_ON_TIMER
+ 187 0102 4FF4C875 	  MOV   R5, #400
+ 188 0106 2560     	  STR   R5, [R4]
+ 189              	
+ 190 0108 4FF00E00 	  MOV   R0, LD8_PIN                @ currentPin = LD8 [_PIN
+ 191 010c 00F058F8 	  BL      enableLED            @ enable the currentPin
+ 192 0110 624C     	  LDR   R4, = reacted 
+ 193 0112 4FF00005 	  MOV     R5,#0
+ 194 0116 2560     	  STR     R5, [R4]               @ reacted = 0  
+ 195              	
+ 196              	level5:
+ 197 0118 604C     	  LDR   R4, = reacted 
+ 198 011a 2568     	  LDR   R5, [R4]
+ 199 011c 012D     	  CMP   R5, #1
+ 200 011e 00D0     	  BEQ   endLevel5
+ 201 0120 FAE7     	  B     level5
+ 202              	endLevel5:
+ 203 0122 06F10106 	  ADD   R6,R6,#1                @ level 3 completed, points++;
+ 204              	
+ 205 0126 5C4C     	  LDR   R4, = FLASH_ON_TIMER
+ 206 0128 40F27715 	  MOV   R5, #375
+ 207 012c 2560     	  STR   R5, [R4]
+ 208              	 // .equ    FLASH_ON_TIMER, 50 @ FLASH_ON_TIMER = 50 (flash on timer becomes smaller each time)
+ 209              	 // .equ    currentPin, LD8_PIN  @ set currentPin to LD8_PIN
+ 210 012e 4FF00D00 	  MOV     R0, LD10_PIN                @ currentPin = LD3_PIN
+ 211 0132 00F045F8 	  BL      enableLED            @ enable the currentPin
+ 212 0136 594C     	  LDR     R4, = reacted 
+ 213 0138 4FF00005 	  MOV     R5,#0
+ 214 013c 2560     	  STR     R5, [R4]               @ reacted = 0  
+ 215              	
+ 216              	level6:
+ 217 013e 574C     	  LDR   R4, = reacted 
+ 218 0140 2568     	  LDR   R5, [R4]
+ 219 0142 012D     	  CMP   R5, #1
+ 220 0144 00D0     	  BEQ   endLevel6
+ 221 0146 FAE7     	  B     level6
+ 222              	endLevel6:
+ 223              	
+ 224 0148 534C     	  LDR   R4, = FLASH_ON_TIMER
+ 225 014a 4FF4AF75 	  MOV   R5, #350
+ 226 014e 2560     	  STR   R5, [R4]
+ 227              	
+ 228              	 // .equ    FLASH_ON_TIMER, 35  @ FLASH_ON_TIMER = 35 (flash on timer becomes smaller each time)
+ 229              	 // .equ    currentPin, LD9_PIN  @ set currentPin to LD9_PIN
+ 230 0150 4FF00C00 	 MOV   R0, LD9_PIN                @ currentPin = LD3_PIN
+ 231 0154 00F034F8 	  BL      enableLED            @ enable the currentPin
+ 232 0158 504C     	  LDR   R4, = reacted 
+ 233 015a 4FF00005 	  MOV     R5, #0
+ 234 015e 2560     	  STR     R5, [R4]               @ reacted = 0  
+ 235              	
+ 236              	
+ 237              	level7:
+ 238 0160 4E4C     	  LDR   R4, = reacted 
+ 239 0162 2568     	  LDR   R5, [R4]
+ 240 0164 012D     	  CMP   R5, #1
+ 241 0166 00D0     	  BEQ   endLevel7
+ 242 0168 FAE7     	  B     level7
+ 243              	endLevel7:
+ 244 016a 4B4C     	  LDR   R4, = FLASH_ON_TIMER
+ 245 016c 4FF0C805 	  MOV   R5, #200
+ 246 0170 2560     	  STR   R5, [R4]
+ 247              	
+ 248              	 // .equ    FLASH_ON_TIMER, 25  @ FLASH_ON_TIMER = 25 (flash on timer becomes smaller each time)
+ 249              	 // .equ    currentPin, LD10_PIN  @ set currentPin to LD10_PIN
+ 250 0172 4FF00B00 	 MOV   R0, LD7_PIN                @ currentPin = LD3_PIN
+ 251 0176 00F023F8 	  BL      enableLED            @ enable the currentPin
+ 252 017a 484C     	  LDR   R4, = reacted 
+ 253 017c 4FF00005 	  MOV     R5,#0
+ 254 0180 2560     	  STR     R5, [R4]               @ reacted = 0  
+ 255              	
+ 256              	
+ 257              	level8:
+ 258 0182 464C     	  LDR   R4, = reacted 
+ 259 0184 2568     	  LDR   R5, [R4]
+ 260 0186 012D     	  CMP   R5, #1
+ 261 0188 00D0     	  BEQ   endLevel8
+ 262 018a FAE7     	  B     level8
+ 263              	endLevel8:
+ 264 018c 06F10106 	  ADD   R6,R6,#1                @ level 3 completed, points++;
+ 265              	
+ 266 0190 414C     	   LDR   R4, = FLASH_ON_TIMER
+ 267 0192 4FF06405 	  MOV   R5, #100
+ 268 0196 2560     	  STR   R5, [R4]
+ 269              	
+ 270              	 // .equ    FLASH_ON_TIMER, 25  @ FLASH_ON_TIMER = 25 (flash on timer becomes smaller each time)
+ 271              	 // .equ    currentPin, LD10_PIN  @ set currentPin to LD10_PIN
+ 272 0198 4FF00A00 	  MOV     R0, LD5_PIN                @ currentPin = LD3_PIN
+ 273 019c 00F010F8 	  BL      enableLED            @ enable the currentPin
+ 274 01a0 3E4C     	  LDR     R4, = reacted 
+ 275 01a2 4FF00005 	  MOV     R5,#0
+ 276 01a6 2560     	  STR     R5, [R4]               @ reacted = 0  
+ 277              	level9:
+ 278 01a8 3C4C     	  LDR   R4, = reacted 
+ 279 01aa 2568     	  LDR   R5, [R4]
+ 280 01ac 012D     	  CMP   R5, #1
+ 281 01ae 00D0     	  BEQ   endLevel9
+ 282 01b0 FAE7     	  B     level9
+ 283              	endLevel9:
+ 284 01b2 06F10106 	  ADD   R6,R6,#1                @ level 3 completed, points++;
+ 285              	
+ 286 01b6 384C     	  LDR   R4, = FLASH_ON_TIMER
+ 287 01b8 4FF03205 	  MOV   R5, #50
+ 288 01bc 2560     	  STR   R5, [R4]
+ 289              	  
+ 290              	
+ 291              	
+ 292              	
+ 293              	 
+ 294              	
+ 295              	/*
+ 296              	// C. Quinn, created ending sequence, 13:00, 06/04/2024
+ 297              	  CMP       R6,#1                   @ if score > 1, flash first LED
+ 298              	  BLS       End_Main
+ 299              	  .equ      currentPin, LD3_PIN     @ set currentPin to LD3_PIN
+ 300              	  BL        enableLED               @ enable the currentPin
+ 301              	  CMP       R6,#2                   @ if score > 2, flash second LED
+ 302              	  BLS       End_Main
+ 303              	  .equ      currentPin, LD4_PIN     @ set currentPin to LD3_PIN
+ 304              	  BL        enableLED               @ enable the currentPin
+ 305              	  CMP       R6,#3                   @ if score > 3, flash third LED
+ 306              	  BLS       End_Main
+ 307              	  .equ      currentPin, LD5_PIN     @ set currentPin to LD3_PIN
+ 308              	  BL        enableLED               @ enable the currentPin
+ 309              	  CMP       R6,#4                   @ if score > 4, flash third LED
+ 310              	  BLS       End_Main
+ 311              	  .equ      currentPin, LD6_PIN     @ set currentPin to LD3_PIN
+ 312              	  BL        enableLED               @ enable the currentPin
+ 313              	
+ 314              	*/
+ 315              	End_Main:
+ 316 01be 30BD     	  POP   {R4-R5,PC}
+ 317              	
+ 318              	
+ 319              	/*******************************Subroutines & Interrupts **********************/
+ 320              	
+ 321              	
+ 322              	
+ 323              	
+ 324              	
+ 325              	
+ 326              	
+ 327              	
+ 328              	
+ 329              	  @ enableLed subroutine:
+ 330              	
+ 331              	  @ enables the desired LED for output
+ 332              	  @ parameters: 
+ 333              	  @   currentPin
+ 334              	
+ 335              	
+ 336              	enableLED:
+ 337              	  @  Configure LD3 for output
+ 338              	  @   by setting bits 27:26 of GPIOE_MODER to 01 (GPIO Port E Mode Register)
+ 339              	  @   (by BIClearing then ORRing)
+ 340              	  @   
+ 341              	  @       paramateres
+ 342              	  @       R0 currentLED
+ 343              	
+ 344 01c0 7FB5     	  PUSH    {R0-R6,LR}
+ 345 01c2 374C     	  LDR     R4, =GPIOE_MODER
+ 346 01c4 2568     	  LDR     R5, [R4]                    @ Read ..
+ 347              	
+ 348              	
+ 349 01c6 4FF00306 	  MOV     R6, #0b11
+ 350 01ca 06FA00F6 	  MOV     R6, R6, LSL R0
+ 351 01ce 06FA00F6 	  MOV     R6, R6, LSL R0  
+ 352 01d2 25EA0605 	  BIC     R5, R6           //BIC     R5, #(0b11<<(currentPin*2))    @ Modify ...
+ 353 01d6 4FF00106 	  MOV     R6, #0b01
+ 354 01da 06FA00F6 	  MOV     R6, R6, LSL R0
+ 355 01de 06FA00F6 	  MOV     R6, R6, LSL R0
+ 356 01e2 45EA0605 	  ORR     R5, R6           //ORR     R5, #(0b01<<(currentPin*2))    @ write 01 to bits 
+ 357              	  
+ 358 01e6 2560     	  STR     R5, [R4]                    @ Write ]
+ 359 01e8 7FBD     	  POP    {R0-R6,PC}
+ 360              	
+ 361              	
+ 362              	
+ 363              	
+ 364              	
+ 365              	
+ 366              	
+ 367              	
+ 368              	
+ 369              	
+ 370              	@
+ 371              	@ SysTick interrupt handler (blink currentLED)
+ 372              	@
+ 374              	SysTick_Handler:
+ 375 01ea 2DE9FF43 	  PUSH  {R0-R9, LR}
+ 376              	                                    @ copy of currentLED             
+ 377 01ee 214C     	  LDR   R4, =blink_countdown        @ if (countdown != 0) {
+ 378 01f0 2568     	  LDR   R5, [R4]                    @
+ 379 01f2 002D     	  CMP   R5, #0                      @
+ 380 01f4 03D0     	  BEQ   .LelseFire                  @
+ 381 01f6 A5F10105 	  SUB   R5, R5, #1                  @   countdown = countdown - 1;
+ 382 01fa 2560     	  STR   R5, [R4]                    @
+ 383 01fc 1DE0     	  B     .LendIfDelay                @ }
+ 384              	.LelseFire:                         @ else {
+ 385 01fe 274E     	  LDR     R6, = reacted             @
+ 386 0200 3768     	  LDR     R7,  [R6]
+ 387 0202 012F     	  CMP     R7,#1                     @   )
+ 388 0204 08D0     	  BEQ     .LskipInvert              @   if(reacted) Invert LD3L
+ 389 0206 274C     	  LDR     R4, =GPIOE_ODR            @   {
+ 390 0208 2568     	  LDR     R5, [R4]                  @   ledStatus = on/off
+ 391              	
+ 392 020a 4FF00106 	  MOV     R6, #0b1
+ 393 020e 06FA00F6 	  MOV     R6, R6, LSL R0
+ 394 0212 85EA0605 	  EOR     R5,R6                       //EOR     R5, #(0b1<<(currentPin))  @   GPIOE_ODR = GPIOE_ODR
+ 395              	
+ 396 0216 2560     	  STR     R5, [R4]                  @   ledStatus = !ledStatus
+ 397              	.LskipInvert:                       @   }
+ 398              	
+ 399 0218 4FF00106 	  MOV     R6, #0b1
+ 400 021c 06FA00F6 	  MOV     R6, R6, LSL R0
+ 401 0220 05EA0605 	  AND     R5, R6
+ 402 0224 B542     	  CMP     R5,R6                     @CMP     R5, #(0b1<<(currentPin))  @   if(ledStatus = off)
+ 403              	  
+ 404 0226 04D0     	  BEQ     .LflashOn                 @   {
+ 405 0228 124C     	  LDR     R4, =blink_countdown      @     
+ 406 022a 40F2DC55 	  LDR     R5, = FLASH_OFF_TIMER     @
+ 407 022e 2560     	  STR     R5, [R4]                  @     countdown = FLASH_OFF_TIMER;
+ 408 0230 03E0     	  B       .LendIfDelay              @   }
+ 409              	.LflashOn:
+ 410 0232 104C     	  LDR     R4, =blink_countdown      @   else{
+ 411 0234 184D     	  LDR     R5, = FLASH_ON_TIMER
+ 412 0236 2D68     	  LDR     R5, [R5]
+ 413 0238 2560     	  STR     R5, [R4]                  @   countdown = FLASH_ON_TIMER;
+ 414              	                                    @
+ 415              	.LendIfDelay:                       @     }
+ 416 023a 0F4C     	  LDR     R4, =SCB_ICSR             @ Clear (acknowledge) the interrupt
+ 417 023c 4FF00075 	  LDR     R5, =SCB_ICSR_PENDSTCLR   @
+ 418 0240 2560     	  STR     R5, [R4]                  @
+ 419              	  @ Return from interrupt handler
+ 420 0242 BDE8FF83 	  POP  {R0-R9, PC}
+ 421              	
+ 422              	
+ 423              	@
+ 424              	@ External interrupt line 0 interrupt handler(Push Button Handler)
+ 425              	@   (Check if player pressed the button on time)
+ 426              	@
+ 428              	  @     parameters
+ 429              	  @     R0 - currentPin
+ 430              	  @     R1 - level
+ 431              	EXTI0_IRQHandler:
+ 432 0246 7FB5     	  PUSH  {R0-R6,LR}
+ 433 0248 164C     	  LDR   R4, =GPIOE_ODR
+ 434 024a 2568     	  LDR   R5, [R4]
+ 435 024c 4FF00106 	  MOV   R6, #0b1
+ 436 0250 06FA00F6 	  MOV   R6, R6, LSL R0
+ 437 0254 05EA0605 	  AND   R5, R6
+ 438 0258 B542     	  CMP   R5, R6                        //CMP   R5, #(0b1<<(currentPin))
+ 439 025a 03D1     	  BNE   .LledNotOn
+ 440 025c 0F4C     	  LDR   R4, = reacted
+ 441 025e 4FF00105 	  MOV   R5, #1
+ 442 0262 2560     	  STR   R5, [R4]
+ 443              	  .LledNotOn:
+ 444 0264 104C     	  LDR   R4, =EXTI_PR                @ Clear (acknowledge) the interrupt
+ 445 0266 4FF00105 	  MOV   R5, #(1<<0)                 @
+ 446 026a 2560     	  STR   R5, [R4]                    @
+ 447              	  @ Return from interrupt handler
+ 448 026c 7FBD     	  POP  {R0-R6,PC}
+ 449              	
+ 450              	
+ 451              	// memoryAddresses
+ 452 026e 0000     	  .section .data
+ 453              	blink_countdown:
+ 454 0000 00000000 	  .space  4
+ 455              	reacted:
+ 456 0004 00000000 	  .space 4
+ 457              	FLASH_ON_TIMER:
+ 458 0008 00000000 	  .space 4
+ 459              	
+ 460              	
+ 461              	
+ 462              	  .end...
 DEFINED SYMBOLS
-        ./src/game.s:23     .text:00000000 Main
-        ./src/game.s:193    .text:000000c4 SysTick_Handler
-        ./src/game.s:236    .text:0000010a EXTI0_IRQHandler
+        ./src/game.s:24     .text:00000002 Main
+        ./src/game.s:374    .text:000001ea SysTick_Handler
+        ./src/game.s:431    .text:00000246 EXTI0_IRQHandler
  ./src/definitions.s:1      *ABS*:48001000 GPIOE_BASE
  ./src/definitions.s:2      *ABS*:48001000 GPIOE_MODER
  ./src/definitions.s:3      *ABS*:48001004 GPIOE_OTYPER
@@ -349,19 +548,34 @@ DEFINED SYMBOLS
  ./src/definitions.s:42     *ABS*:e000ed00 SCB_BASE
  ./src/definitions.s:43     *ABS*:e000ed04 SCB_ICSR
  ./src/definitions.s:44     *ABS*:02000000 SCB_ICSR_PENDSTCLR
+        ./src/game.s:20     *ABS*:00000009 currentPin
         ./src/game.s:21     *ABS*:000005dc FLASH_OFF_TIMER
-        ./src/game.s:22     *ABS*:000000c8 FLASH_ON_TIMER
-        ./src/game.s:24     .text:00000000 $t
-        ./src/game.s:256    .data:00000000 blink_countdown
-        ./src/game.s:96     *ABS*:0000000f currentPin
-        ./src/game.s:168    .text:000000b2 enableLED
-        ./src/game.s:100    .text:0000006a level1
-        ./src/game.s:258    .data:00000004 reacted
-        ./src/game.s:106    .text:00000074 endLevel1
-        ./src/game.s:117    .text:00000082 level2
-        ./src/game.s:123    .text:0000008c endLevel2
-        ./src/game.s:147    .text:000000b0 End_Main
-        ./src/game.s:257    .data:00000000 $d
-        ./src/game.s:263    .text:00000128 $d
+        ./src/game.s:22     .text:00000000 $t
+        ./src/game.s:453    .data:00000000 blink_countdown
+        ./src/game.s:457    .data:00000008 FLASH_ON_TIMER
+        ./src/game.s:455    .data:00000004 reacted
+        ./src/game.s:336    .text:000001c0 enableLED
+        ./src/game.s:112    .text:00000080 level1
+        ./src/game.s:118    .text:0000008a endLevel1
+        ./src/game.s:137    .text:000000aa level2
+        ./src/game.s:143    .text:000000b4 endLevel2
+        ./src/game.s:158    .text:000000d2 level3
+        ./src/game.s:164    .text:000000dc endLevel3
+        ./src/game.s:178    .text:000000f6 level4
+        ./src/game.s:184    .text:00000100 endLevel4
+        ./src/game.s:196    .text:00000118 level5
+        ./src/game.s:202    .text:00000122 endLevel5
+        ./src/game.s:216    .text:0000013e level6
+        ./src/game.s:222    .text:00000148 endLevel6
+        ./src/game.s:237    .text:00000160 level7
+        ./src/game.s:243    .text:0000016a endLevel7
+        ./src/game.s:257    .text:00000182 level8
+        ./src/game.s:263    .text:0000018c endLevel8
+        ./src/game.s:277    .text:000001a8 level9
+        ./src/game.s:283    .text:000001b2 endLevel9
+        ./src/game.s:315    .text:000001be End_Main
+        ./src/game.s:454    .data:00000000 $d
+        ./src/game.s:452    .text:0000026e $d
+        ./src/game.s:462    .text:00000270 $d
 
 NO UNDEFINED SYMBOLS
