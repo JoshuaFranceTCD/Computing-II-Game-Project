@@ -135,7 +135,7 @@ level3:
   CMP   R5, #1
   BEQ   endLevel3
   B     level3
-endLevel2:
+endLevel3:
   ADD   R6,R6,#1                @ level 3 completed, points++;
 
 // C. Quinn, created ending sequence, 13:00, 06/04/2024
