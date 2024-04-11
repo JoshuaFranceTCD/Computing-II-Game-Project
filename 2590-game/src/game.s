@@ -124,7 +124,7 @@ endLevel2:
 // level 3, 4 etc
 
   .equ    FLASH_ON_TIMER, 150  @ FLASH_ON_TIMER = 150 (flash on timer becomes smaller each time)
-  .equ    currentPin, LD5_PIN  @ set currentPin to LD5_PIN
+  .equ    currentPin, LD6_PIN  @ set currentPin to LD5_PIN
   BL      enableLED            @ enable the currentPin
   MOV     R5,#0
   LDR     R5, [R4]               @ reacted = 0  
@@ -139,7 +139,7 @@ endLevel3:
   ADD   R6,R6,#1                @ level 3 completed, points++;
 
     .equ    FLASH_ON_TIMER, 100  @ FLASH_ON_TIMER = 100 (flash on timer becomes smaller each time)
-  .equ    currentPin, LD6_PIN  @ set currentPin to LD6_PIN
+  .equ    currentPin, LD8_PIN  @ set currentPin to LD6_PIN
   BL      enableLED            @ enable the currentPin
   MOV     R5,#0
   LDR     R5, [R4]               @ reacted = 0  
@@ -154,7 +154,7 @@ endLevel4:
   ADD   R6,R6,#1                @ level 3 completed, points++;
 
   .equ    FLASH_ON_TIMER, 75  @ FLASH_ON_TIMER =75 (flash on timer becomes smaller each time)
-  .equ    currentPin, LD7_PIN  @ set currentPin to LD7_PIN
+  .equ    currentPin, LD10_PIN  @ set currentPin to LD10_PIN
   BL      enableLED            @ enable the currentPin
   MOV     R5,#0
   LDR     R5, [R4]               @ reacted = 0  
@@ -169,7 +169,7 @@ endLevel5:
   ADD   R6,R6,#1                @ level 3 completed, points++;
 
   .equ    FLASH_ON_TIMER, 50 @ FLASH_ON_TIMER = 50 (flash on timer becomes smaller each time)
-  .equ    currentPin, LD8_PIN  @ set currentPin to LD8_PIN
+  .equ    currentPin, LD9_PIN  @ set currentPin to LD9_PIN
   BL      enableLED            @ enable the currentPin
   MOV     R5,#0
   LDR     R5, [R4]               @ reacted = 0  
@@ -184,7 +184,7 @@ endLevel6:
   ADD   R6,R6,#1                @ level 3 completed, points++;
 
   .equ    FLASH_ON_TIMER, 35  @ FLASH_ON_TIMER = 35 (flash on timer becomes smaller each time)
-  .equ    currentPin, LD9_PIN  @ set currentPin to LD9_PIN
+  .equ    currentPin, LD7_PIN  @ set currentPin to LD7_PIN
   BL      enableLED            @ enable the currentPin
   MOV     R5, #0
   LDR     R5, [R4]               @ reacted = 0  
@@ -200,7 +200,7 @@ endLevel7:
   ADD   R6,R6,#1                @ level 3 completed, points++;
 
   .equ    FLASH_ON_TIMER, 25  @ FLASH_ON_TIMER = 25 (flash on timer becomes smaller each time)
-  .equ    currentPin, LD10_PIN  @ set currentPin to LD10_PIN
+  .equ    currentPin, LD5_PIN  @ set currentPin to LD5_PIN
   BL      enableLED            @ enable the currentPin
   MOV     R5,#0
   LDR     R5, [R4]               @ reacted = 0  
