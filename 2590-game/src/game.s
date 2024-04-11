@@ -35,13 +35,9 @@
   @ Initialise the first countdown
 
 
-
   LDR     R4, =blink_countdown
   LDR     R5, =FLASH_OFF_TIMER
-
   STR     R5, [R4]  
-
-
 
 
   @ Configure SysTick Timer to generate an interrupt every 1ms
@@ -98,6 +94,10 @@
   // you could load the value of the GPIOE_MODER when all the LEDs are on(at the end of the sequence) and just alternate between
   // the two for the ending sequence if you want to do it that way
 
+
+  // tried it out down the end, i dont think its right tho lol
+  // also is there a way to flash the flight without calling for an interupt?
+  // okay i think they should blink but idk if i turned them all off correctly
   LDR     R4, =FLASH_ON_TIMER
   MOV     R5, #500                    @ int LEDSpeed = 500;
   STR     R5, [R4]
@@ -111,7 +111,7 @@
 
 // loop continously until player reacts correctly
 level1:                               @ do {
-  LDR     R4, =reacted                @   reacted = playerReacted();
+  LDR     R4, =reacted                @   boolean reacted = playerReacted;
   LDR     R5, [R4]
   CMP     R5, #1                      
   BEQ     endLevel1                   
@@ -122,7 +122,7 @@ endLevel1:
   MOV     R5, #475
   STR     R5, [R4]
   MOV     R6,#1                       @ points++;
-  LDR     R4, = reacted 
+  LDR     R4, =reacted 
   LDR     R5, [R4]
   MOV     R5, #0
   STR     R5, [R4]
@@ -131,7 +131,7 @@ endLevel1:
   BL      enableLED                  
 
  level2:                              @ do {
-  LDR     R4, = reacted 
+  LDR     R4, =reacted 
   LDR     R5, [R4]
   CMP     R5, #1
   BEQ     endLevel2
@@ -267,8 +267,10 @@ endLevel9:
   STR     R5, [R4]
 
 
-/*
+
 // C. Quinn, created ending sequence
+
+  // turning off all led's
   STR     R5, [R8]
   MOV     R0, LD3_PIN                 @ currentPin = LD3_PIN
   BL      enableLED                   @ enable the currentPin
@@ -293,7 +295,181 @@ endLevel9:
   STR     R5, [R4]
   MOV     R0, LD5_PIN                 @ currentPin = LD3_PIN
   BL      enableLED                   @ enable the currentPin
-*/
+
+  // blink each LED
+  LDR     R4, =GPIOE_MODER
+  LDR     R5, [R4]                      @ Read ...
+  BIC     R5, #(0b11<<(LD3_PIN*2))      @ Modify ...
+  ORR     R5, #(0b01<<(LD3_PIN*2))      @ write 01 to bits 
+  STR     R5, [R4]                      @ Write 
+
+  LDR     R4, =GPIOE_ODR
+  LDR     R5, [R4]                      @ Read ...
+  EOR     R5, #(0b1<<(LD3_PIN))         @ Modify ...
+  STR     R5, [R4]                      @ Write
+
+  @ wait for 1s ...
+  LDR     R5, =500000     @ Assuming 8MHz clock, 4 cycles per iteration
+                          @ (SUBS + BNE + 2 stall cycles for branch)
+.LwhwaitL1:
+  SUBS    R5, R5, #1      @ Keep looping until we count down to zero
+  BNE     .LwhwaitL1  
+
+  CMP R6, #0
+  BEQ End_Main
+
+//==== Lvl 2
+  LDR     R4, =GPIOE_MODER
+  LDR     R5, [R4]                      @ Read ...
+  BIC     R5, #(0b11<<(LD4_PIN*2))      @ Modify ...
+  ORR     R5, #(0b01<<(LD4_PIN*2))      @ write 01 to bits 
+  STR     R5, [R4]                      @ Write 
+
+  LDR     R4, =GPIOE_ODR
+  LDR     R5, [R4]                      @ Read ...
+  EOR     R5, #(0b1<<(LD4_PIN))         @ Modify ...
+  STR     R5, [R4]                      @ Write
+
+  @ wait for 1s ...
+  LDR     R5, =500000     @ Assuming 8MHz clock, 4 cycles per iteration
+                          @ (SUBS + BNE + 2 stall cycles for branch)
+.LwhwaitL2:
+  SUBS    R5, R5, #1      @ Keep looping until we count down to zero
+  BNE     .LwhwaitL2  
+
+  CMP R6, #1
+  BEQ End_Main
+
+//==== Lvl 3
+  LDR     R4, =GPIOE_MODER
+  LDR     R5, [R4]                      @ Read ...
+  BIC     R5, #(0b11<<(LD6_PIN*2))      @ Modify ...
+  ORR     R5, #(0b01<<(LD6_PIN*2))      @ write 01 to bits 
+  STR     R5, [R4]                      @ Write 
+
+  LDR     R4, =GPIOE_ODR
+  LDR     R5, [R4]                      @ Read ...
+  EOR     R5, #(0b1<<(LD6_PIN))         @ Modify ...
+  STR     R5, [R4]                      @ Write
+
+  @ wait for 1s ...
+  LDR     R5, =500000     @ Assuming 8MHz clock, 4 cycles per iteration
+                          @ (SUBS + BNE + 2 stall cycles for branch)
+.LwhwaitL3:
+  SUBS    R5, R5, #1      @ Keep looping until we count down to zero
+  BNE     .LwhwaitL3  
+
+  CMP R6, #2
+  BEQ End_Main
+
+//==== Lvl 4
+  LDR     R4, =GPIOE_MODER
+  LDR     R5, [R4]                      @ Read ...
+  BIC     R5, #(0b11<<(LD8_PIN*2))      @ Modify ...
+  ORR     R5, #(0b01<<(LD8_PIN*2))      @ write 01 to bits 
+  STR     R5, [R4]                      @ Write 
+
+  LDR     R4, =GPIOE_ODR
+  LDR     R5, [R4]                      @ Read ...
+  EOR     R5, #(0b1<<(LD8_PIN))         @ Modify ...
+  STR     R5, [R4]                      @ Write
+
+  @ wait for 1s ...
+  LDR     R5, =500000     @ Assuming 8MHz clock, 4 cycles per iteration
+                          @ (SUBS + BNE + 2 stall cycles for branch)
+.LwhwaitL4:
+  SUBS    R5, R5, #1      @ Keep looping until we count down to zero
+  BNE     .LwhwaitL4  
+
+  CMP R6, #3
+  BEQ End_Main
+
+//==== Lvl 5
+  LDR     R4, =GPIOE_MODER
+  LDR     R5, [R4]                      @ Read ...
+  BIC     R5, #(0b11<<(LD10_PIN*2))      @ Modify ...
+  ORR     R5, #(0b01<<(LD10_PIN*2))      @ write 01 to bits 
+  STR     R5, [R4]                      @ Write 
+
+  LDR     R4, =GPIOE_ODR
+  LDR     R5, [R4]                      @ Read ...
+  EOR     R5, #(0b1<<(LD10_PIN))         @ Modify ...
+  STR     R5, [R4]                      @ Write
+
+  @ wait for 1s ...
+  LDR     R5, =500000     @ Assuming 8MHz clock, 4 cycles per iteration
+                          @ (SUBS + BNE + 2 stall cycles for branch)
+.LwhwaitL5:
+  SUBS    R5, R5, #1      @ Keep looping until we count down to zero
+  BNE     .LwhwaitL5  
+
+  CMP R6, #4
+  BEQ End_Main
+
+  //==== Lvl 6
+  LDR     R4, =GPIOE_MODER
+  LDR     R5, [R4]                      @ Read ...
+  BIC     R5, #(0b11<<(LD9_PIN*2))      @ Modify ...
+  ORR     R5, #(0b01<<(LD9_PIN*2))      @ write 01 to bits 
+  STR     R5, [R4]                      @ Write 
+
+  LDR     R4, =GPIOE_ODR
+  LDR     R5, [R4]                      @ Read ...
+  EOR     R5, #(0b1<<(LD9_PIN))         @ Modify ...
+  STR     R5, [R4]                      @ Write
+
+  @ wait for 1s ...
+  LDR     R5, =500000     @ Assuming 8MHz clock, 4 cycles per iteration
+                          @ (SUBS + BNE + 2 stall cycles for branch)
+.LwhwaitL6:
+  SUBS    R5, R5, #1      @ Keep looping until we count down to zero
+  BNE     .LwhwaitL6  
+
+  CMP R6, #5
+  BEQ End_Main
+
+  //==== Lvl 7
+  LDR     R4, =GPIOE_MODER
+  LDR     R5, [R4]                      @ Read ...
+  BIC     R5, #(0b11<<(LD7_PIN*2))      @ Modify ...
+  ORR     R5, #(0b01<<(LD7_PIN*2))      @ write 01 to bits 
+  STR     R5, [R4]                      @ Write 
+
+  LDR     R4, =GPIOE_ODR
+  LDR     R5, [R4]                      @ Read ...
+  EOR     R5, #(0b1<<(LD7_PIN))         @ Modify ...
+  STR     R5, [R4]                      @ Write
+
+  @ wait for 1s ...
+  LDR     R5, =500000     @ Assuming 8MHz clock, 4 cycles per iteration
+                          @ (SUBS + BNE + 2 stall cycles for branch)
+.LwhwaitL7:
+  SUBS    R5, R5, #1      @ Keep looping until we count down to zero
+  BNE     .LwhwaitL7  
+
+  CMP R6, #6
+  BEQ End_Main
+
+  //==== Lvl 8
+  LDR     R4, =GPIOE_MODER
+  LDR     R5, [R4]                      @ Read ...
+  BIC     R5, #(0b11<<(LD5_PIN*2))      @ Modify ...
+  ORR     R5, #(0b01<<(LD5_PIN*2))      @ write 01 to bits 
+  STR     R5, [R4]                      @ Write 
+
+  LDR     R4, =GPIOE_ODR
+  LDR     R5, [R4]                      @ Read ...
+  EOR     R5, #(0b1<<(LD5_PIN))         @ Modify ...
+  STR     R5, [R4]                      @ Write
+
+  @ wait for 1s ...
+  LDR     R5, =500000     @ Assuming 8MHz clock, 4 cycles per iteration
+                          @ (SUBS + BNE + 2 stall cycles for branch)
+.LwhwaitL8:
+  SUBS    R5, R5, #1      @ Keep looping until we count down to zero
+  BNE     .LwhwaitL8  
+
+
 End_Main:
   POP     {R4-R5,PC}
 

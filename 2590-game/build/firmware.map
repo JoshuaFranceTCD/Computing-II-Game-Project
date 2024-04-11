@@ -1,4 +1,6 @@
 
+There are no discarded input sections
+
 Memory Configuration
 
 Name             Origin             Length             Attributes
@@ -20,115 +22,115 @@ LOAD build/startup.o
  .isr_vector    0x08000000      0x188 build/startup.o
                 0x08000188                        . = ALIGN (0x4)
 
-.text           0x08000188      0x33e
+.text           0x08000188      0x4ae
  *(.text)
  .text          0x08000188        0x0 build/definitions.o
- .text          0x08000188      0x2ac build/game.o
+ .text          0x08000188      0x41c build/game.o
                 0x0800018a                Main
-                0x08000372                SysTick_Handler
-                0x080003ce                EXTI0_IRQHandler
- .text          0x08000434       0x90 build/startup.o
-                0x08000434                Reset_Handler
-                0x080004ac                Init_Test
+                0x080004e0                SysTick_Handler
+                0x0800053c                EXTI0_IRQHandler
+ .text          0x080005a4       0x90 build/startup.o
+                0x080005a4                Reset_Handler
+                0x0800061c                Init_Test
  *(.text*)
  .text.Default_Handler
-                0x080004c4        0x2 build/startup.o
-                0x080004c4                RTC_Alarm_IRQHandler
-                0x080004c4                TIM8_TRG_COM_IRQHandler
-                0x080004c4                TIM8_CC_IRQHandler
-                0x080004c4                DebugMon_Handler
-                0x080004c4                TIM1_CC_IRQHandler
-                0x080004c4                HardFault_Handler
-                0x080004c4                USB_HP_IRQHandler
-                0x080004c4                PVD_IRQHandler
-                0x080004c4                TAMP_STAMP_IRQHandler
-                0x080004c4                PendSV_Handler
-                0x080004c4                NMI_Handler
-                0x080004c4                EXTI3_IRQHandler
-                0x080004c4                USB_HP_CAN_TX_IRQHandler
-                0x080004c4                I2C2_EV_IRQHandler
-                0x080004c4                FPU_IRQHandler
-                0x080004c4                TIM1_UP_TIM16_IRQHandler
-                0x080004c4                UsageFault_Handler
-                0x080004c4                ADC1_2_IRQHandler
-                0x080004c4                SPI1_IRQHandler
-                0x080004c4                CAN_SCE_IRQHandler
-                0x080004c4                TIM6_DAC_IRQHandler
-                0x080004c4                TIM8_UP_IRQHandler
-                0x080004c4                DMA2_Channel2_IRQHandler
-                0x080004c4                DMA1_Channel4_IRQHandler
-                0x080004c4                USART3_IRQHandler
-                0x080004c4                DMA1_Channel7_IRQHandler
-                0x080004c4                UART5_IRQHandler
-                0x080004c4                ADC3_IRQHandler
-                0x080004c4                TIM4_IRQHandler
-                0x080004c4                CAN_RX1_IRQHandler
-                0x080004c4                DMA2_Channel1_IRQHandler
-                0x080004c4                I2C1_EV_IRQHandler
-                0x080004c4                DMA1_Channel6_IRQHandler
-                0x080004c4                UART4_IRQHandler
-                0x080004c4                DMA2_Channel4_IRQHandler
-                0x080004c4                TIM3_IRQHandler
-                0x080004c4                RCC_IRQHandler
-                0x080004c4                DMA1_Channel1_IRQHandler
-                0x080004c4                Default_Handler
-                0x080004c4                USBWakeUp_RMP_IRQHandler
-                0x080004c4                EXTI15_10_IRQHandler
-                0x080004c4                TIM7_IRQHandler
-                0x080004c4                EXTI9_5_IRQHandler
-                0x080004c4                RTC_WKUP_IRQHandler
-                0x080004c4                SPI2_IRQHandler
-                0x080004c4                USB_LP_CAN_RX0_IRQHandler
-                0x080004c4                MemManage_Handler
-                0x080004c4                SVC_Handler
-                0x080004c4                DMA2_Channel5_IRQHandler
-                0x080004c4                DMA1_Channel5_IRQHandler
-                0x080004c4                USB_LP_IRQHandler
-                0x080004c4                EXTI4_IRQHandler
-                0x080004c4                TIM1_TRG_COM_TIM17_IRQHandler
-                0x080004c4                DMA1_Channel3_IRQHandler
-                0x080004c4                ADC4_IRQHandler
-                0x080004c4                WWDG_IRQHandler
-                0x080004c4                TIM2_IRQHandler
-                0x080004c4                COMP7_IRQHandler
-                0x080004c4                COMP1_2_3_IRQHandler
-                0x080004c4                EXTI1_IRQHandler
-                0x080004c4                USART2_IRQHandler
-                0x080004c4                COMP4_5_6_IRQHandler
-                0x080004c4                I2C2_ER_IRQHandler
-                0x080004c4                DMA1_Channel2_IRQHandler
-                0x080004c4                TIM8_BRK_IRQHandler
-                0x080004c4                FLASH_IRQHandler
-                0x080004c4                BusFault_Handler
-                0x080004c4                USART1_IRQHandler
-                0x080004c4                SPI3_IRQHandler
-                0x080004c4                I2C1_ER_IRQHandler
-                0x080004c4                USBWakeUp_IRQHandler
-                0x080004c4                DMA2_Channel3_IRQHandler
-                0x080004c4                EXTI2_TSC_IRQHandler
-                0x080004c4                TIM1_BRK_TIM15_IRQHandler
+                0x08000634        0x2 build/startup.o
+                0x08000634                TIM1_BRK_TIM15_IRQHandler
+                0x08000634                TIM8_TRG_COM_IRQHandler
+                0x08000634                TIM8_CC_IRQHandler
+                0x08000634                DebugMon_Handler
+                0x08000634                TIM1_CC_IRQHandler
+                0x08000634                HardFault_Handler
+                0x08000634                USB_HP_IRQHandler
+                0x08000634                PVD_IRQHandler
+                0x08000634                TAMP_STAMP_IRQHandler
+                0x08000634                PendSV_Handler
+                0x08000634                NMI_Handler
+                0x08000634                EXTI3_IRQHandler
+                0x08000634                USB_HP_CAN_TX_IRQHandler
+                0x08000634                I2C2_EV_IRQHandler
+                0x08000634                FPU_IRQHandler
+                0x08000634                TIM1_UP_TIM16_IRQHandler
+                0x08000634                UsageFault_Handler
+                0x08000634                ADC1_2_IRQHandler
+                0x08000634                SPI1_IRQHandler
+                0x08000634                CAN_SCE_IRQHandler
+                0x08000634                TIM6_DAC_IRQHandler
+                0x08000634                TIM8_UP_IRQHandler
+                0x08000634                DMA2_Channel2_IRQHandler
+                0x08000634                DMA1_Channel4_IRQHandler
+                0x08000634                USART3_IRQHandler
+                0x08000634                DMA1_Channel7_IRQHandler
+                0x08000634                UART5_IRQHandler
+                0x08000634                ADC3_IRQHandler
+                0x08000634                TIM4_IRQHandler
+                0x08000634                CAN_RX1_IRQHandler
+                0x08000634                DMA2_Channel1_IRQHandler
+                0x08000634                I2C1_EV_IRQHandler
+                0x08000634                DMA1_Channel6_IRQHandler
+                0x08000634                UART4_IRQHandler
+                0x08000634                DMA2_Channel4_IRQHandler
+                0x08000634                TIM3_IRQHandler
+                0x08000634                RCC_IRQHandler
+                0x08000634                DMA1_Channel1_IRQHandler
+                0x08000634                Default_Handler
+                0x08000634                USBWakeUp_RMP_IRQHandler
+                0x08000634                EXTI15_10_IRQHandler
+                0x08000634                TIM7_IRQHandler
+                0x08000634                EXTI9_5_IRQHandler
+                0x08000634                RTC_WKUP_IRQHandler
+                0x08000634                SPI2_IRQHandler
+                0x08000634                USB_LP_CAN_RX0_IRQHandler
+                0x08000634                MemManage_Handler
+                0x08000634                SVC_Handler
+                0x08000634                DMA2_Channel5_IRQHandler
+                0x08000634                DMA1_Channel5_IRQHandler
+                0x08000634                USB_LP_IRQHandler
+                0x08000634                EXTI4_IRQHandler
+                0x08000634                TIM1_TRG_COM_TIM17_IRQHandler
+                0x08000634                DMA1_Channel3_IRQHandler
+                0x08000634                ADC4_IRQHandler
+                0x08000634                WWDG_IRQHandler
+                0x08000634                TIM2_IRQHandler
+                0x08000634                COMP7_IRQHandler
+                0x08000634                COMP1_2_3_IRQHandler
+                0x08000634                EXTI1_IRQHandler
+                0x08000634                USART2_IRQHandler
+                0x08000634                COMP4_5_6_IRQHandler
+                0x08000634                I2C2_ER_IRQHandler
+                0x08000634                DMA1_Channel2_IRQHandler
+                0x08000634                TIM8_BRK_IRQHandler
+                0x08000634                FLASH_IRQHandler
+                0x08000634                BusFault_Handler
+                0x08000634                USART1_IRQHandler
+                0x08000634                SPI3_IRQHandler
+                0x08000634                I2C1_ER_IRQHandler
+                0x08000634                USBWakeUp_IRQHandler
+                0x08000634                DMA2_Channel3_IRQHandler
+                0x08000634                EXTI2_TSC_IRQHandler
+                0x08000634                RTC_Alarm_IRQHandler
 
-.glue_7         0x080004c8        0x0
- .glue_7        0x080004c8        0x0 linker stubs
+.glue_7         0x08000638        0x0
+ .glue_7        0x08000638        0x0 linker stubs
 
-.glue_7t        0x080004c8        0x0
- .glue_7t       0x080004c8        0x0 linker stubs
+.glue_7t        0x08000638        0x0
+ .glue_7t       0x08000638        0x0 linker stubs
 
-.vfp11_veneer   0x080004c8        0x0
- .vfp11_veneer  0x080004c8        0x0 linker stubs
+.vfp11_veneer   0x08000638        0x0
+ .vfp11_veneer  0x08000638        0x0 linker stubs
 
-.v4_bx          0x080004c8        0x0
- .v4_bx         0x080004c8        0x0 linker stubs
+.v4_bx          0x08000638        0x0
+ .v4_bx         0x08000638        0x0 linker stubs
 
-.iplt           0x080004c8        0x0
- .iplt          0x080004c8        0x0 build/game.o
+.iplt           0x08000638        0x0
+ .iplt          0x08000638        0x0 build/game.o
 
-.rel.dyn        0x080004c8        0x0
- .rel.iplt      0x080004c8        0x0 build/game.o
+.rel.dyn        0x08000638        0x0
+ .rel.iplt      0x08000638        0x0 build/game.o
 
-.rodata         0x080004c6        0x2
-                0x080004c8                        . = ALIGN (0x4)
- *fill*         0x080004c6        0x2 
+.rodata         0x08000636        0x2
+                0x08000638                        . = ALIGN (0x4)
+ *fill*         0x08000636        0x2 
  *(.rodata)
  *(.rodata*)
 
@@ -142,8 +144,8 @@ LOAD build/startup.o
  *(COMMON)
                 0x20000000                        _ebss = .
 
-.data           0x20000000        0xc load address 0x080004c8
-                0x080004c8                        _load_address = LOADADDR (.data)
+.data           0x20000000        0xc load address 0x08000638
+                0x08000638                        _load_address = LOADADDR (.data)
                 0x20000000                        . = ALIGN (0x4)
                 0x20000000                        _sdata = .
  *(.data.test)
@@ -157,7 +159,7 @@ LOAD build/startup.o
 OUTPUT(build/firmware.elf elf32-littlearm)
 LOAD linker stubs
 
-.igot.plt       0x2000000c        0x0 load address 0x080004d4
+.igot.plt       0x2000000c        0x0 load address 0x08000644
  .igot.plt      0x2000000c        0x0 build/game.o
 
 .ARM.attributes
@@ -169,9 +171,9 @@ LOAD linker stubs
  .ARM.attributes
                 0x0000003d       0x21 build/startup.o
 
-.debug_line     0x00000000      0x1cf
- .debug_line    0x00000000      0x14c build/game.o
- .debug_line    0x0000014c       0x83 build/startup.o
+.debug_line     0x00000000      0x250
+ .debug_line    0x00000000      0x1cd build/game.o
+ .debug_line    0x000001cd       0x83 build/startup.o
 
 .debug_info     0x00000000      0x459
  .debug_info    0x00000000       0x26 build/game.o
@@ -187,10 +189,10 @@ LOAD linker stubs
  .debug_aranges
                 0x00000020       0x28 build/startup.o
 
-.debug_str      0x00000000      0x680
- .debug_str     0x00000000       0x72 build/game.o
- .debug_str     0x00000072      0x60e build/startup.o
-                                0x673 (size before relaxing)
+.debug_str      0x00000000      0x6d9
+ .debug_str     0x00000000      0x6d9 build/game.o
+                                 0x66 (size before relaxing)
+ .debug_str     0x000006d9      0x673 build/startup.o
 
 .debug_ranges   0x00000000       0x20
  .debug_ranges  0x00000000       0x20 build/startup.o
