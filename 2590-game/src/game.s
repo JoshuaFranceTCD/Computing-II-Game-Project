@@ -105,12 +105,10 @@ level1:
   B     level1
 endLevel1:
   ADD   R6,R6,#1                @ level 1 completed, points++;
-   
-  .equ     FLASH_ON_TIMER, 200  @ FLASH_ON_TIMER = 200 (flash on timer becomes smaller each time)
 
+  .equ     FLASH_ON_TIMER, 200  @ FLASH_ON_TIMER = 200 (flash on timer becomes smaller each time)
   .equ     currentPin, LD4_PIN  @ set currentPin to LD4_PIN
    BL      enableLED            @ enable the currentPin
-
    MOV   R5,#0
    LDR   R5, [R4]               @ reacted = 0  
 
@@ -124,6 +122,21 @@ endLevel2:
   ADD   R6,R6,#1                @ level 2 completed, points++;
 
 // level 3, 4 etc
+
+  .equ    FLASH_ON_TIMER, 200  @ FLASH_ON_TIMER = 200 (flash on timer becomes smaller each time)
+  .equ    currentPin, LD5_PIN  @ set currentPin to LD4_PIN
+  BL      enableLED            @ enable the currentPin
+  MOV     R5,#0
+  LDR     R5, [R4]               @ reacted = 0  
+
+level3:
+  LDR   R4, = reacted 
+  LDR   R5, [R4]
+  CMP   R5, #1
+  BEQ   endLevel3
+  B     level3
+endLevel2:
+  ADD   R6,R6,#1                @ level 3 completed, points++;
 
 // C. Quinn, created ending sequence, 13:00, 06/04/2024
   CMP       R6,#1                   @ if score > 1, flash first LED
