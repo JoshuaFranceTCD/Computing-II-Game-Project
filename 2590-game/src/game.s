@@ -236,7 +236,7 @@ level9:
   LDR     R5, [R4]                    @  
   CMP     R5, #1                      
   BEQ     endLevel9                   
-  B       level9                     @  }while(reacted == False);
+  B       level9                      @  }while(reacted == False);
 endLevel9:
   
 
@@ -425,8 +425,8 @@ EXTI0_IRQHandler:
   STR     R5, [R4]                        
   POP     {R4-R6,PC}                      
   
-
-
+  @ Next Level subroutine
+  @   flashes the remaining levels
   @
 nextLevel:
   PUSH    {R0, R5-R7, LR}                 @ Save registers and return address
