@@ -106,86 +106,86 @@ endLevel1:
   STR     R5, [R4]                    @
   LDR     R4, =reacted                @
   LDR     R5, [R4]                    @
-  MOV     R5, #0
-  STR     R5, [R4]
-  MOV     R0, LD4_PIN                 @ currentPin = LD3_PIN
+  MOV     R5, #0                      @
+  STR     R5, [R4]                    @
+  MOV     R0, LD4_PIN                 @ currentPin = LD4_PIN
 
  level2:                              @ do {
-  LDR     R4, =reacted 
-  LDR     R5, [R4]
-  CMP     R5, #1
-  BEQ     endLevel2
+  LDR     R4, =reacted                @
+  LDR     R5, [R4]                    @
+  CMP     R5, #1                      @
+  BEQ     endLevel2                   @
   B       level2                      @ } while(reacted == False);
 endLevel2:
 
   LDR     R4, =FLASH_ON_TIMER         @ FLASH_ON_TIMER = 450;
-  MOV     R5, #450
-  STR     R5, [R4]
-  MOV     R0, LD6_PIN                 @ currentPin = LD3_PIN
-  LDR     R4, =reacted 
-  MOV     R5,#0
+  MOV     R5, #450                    @
+  STR     R5, [R4]                    @
+  MOV     R0, LD6_PIN                 @ currentPin = LD6_PIN
+  LDR     R4, =reacted                @
+  MOV     R5,#0                       @
   STR     R5, [R4]                    @ reacted = False 
 
 level3:
   LDR     R4, =reacted                @ do { 
   LDR     R5, [R4]                    @  
-  CMP     R5, #1                       
-  BEQ     endLevel3                    
+  CMP     R5, #1                      @ 
+  BEQ     endLevel3                   @          
   B       level3                      @ }while(reacted == False);  
 endLevel3:
 
   LDR     R4, =FLASH_ON_TIMER         @ FLASH_ON_TIMER = 425;
-  MOV     R5, #425
-  STR     R5, [R4]
-  MOV     R0, LD8_PIN                 @ currentPin = LD3_PIN
-  MOV     R5,#0
+  MOV     R5, #425                    @
+  STR     R5, [R4]                    @
+  MOV     R0, LD8_PIN                 @ currentPin = LD8_PIN
+  MOV     R5,#0                       @
   STR     R5, [R4]                    @ reacted = False 
 
 level4:
   LDR     R4, = reacted                @ do {
   LDR     R5, [R4]                     @   
-  CMP     R5, #1                       
-  BEQ     endLevel4                    
+  CMP     R5, #1                       @
+  BEQ     endLevel4                    @
   B       level4                       @ }while(reacted == False);
 endLevel4:
 
   LDR     R4, =FLASH_ON_TIMER         @ FLASH_ON_TIMER = 400;
-  MOV     R5, #400
-  STR     R5, [R4]
+  MOV     R5, #400                    @
+  STR     R5, [R4]                    @
   MOV     R0, LD8_PIN                 @ currentPin = LD8_PIN
-  LDR     R4, =reacted 
-  MOV     R5,#0
+  LDR     R4, =reacted                @
+  MOV     R5,#0                       @
   STR     R5, [R4]                    @ reacted = False  
 
 level5:
   LDR     R4, =reacted                @ do {
   LDR     R5, [R4]                    @   
-  CMP     R5, #1                         
-  BEQ     endLevel5                    
+  CMP     R5, #1                      @   
+  BEQ     endLevel5                   @                 
   B       level5                      @ }while(reacted == False);
 endLevel5:
 
   LDR     R4, =FLASH_ON_TIMER         @ FLASH_ON_TIMER = 375;
-  MOV     R5, #375
-  STR     R5, [R4]
-  MOV     R0, LD10_PIN                @ currentPin = LD3_PIN
-  LDR     R4, =reacted 
-  MOV     R5,#0
+  MOV     R5, #375                    @
+  STR     R5, [R4]                    @
+  MOV     R0, LD10_PIN                @ currentPin = LD10_PIN
+  LDR     R4, =reacted                @
+  MOV     R5,#0                       @
   STR     R5, [R4]                    @ reacted = False  
 
 level6:
   LDR     R4, =reacted                @ do {
   LDR     R5, [R4]                    @  
-  CMP     R5, #1                      
-  BEQ     endLevel6                   
+  CMP     R5, #1                      @
+  BEQ     endLevel6                   @ 
   B       level6                      @ }while(reacted == False);
 endLevel6:
 
   LDR     R4, =FLASH_ON_TIMER         @ FLASH_ON_TIMER = 350;
-  MOV     R5, #350
-  STR     R5, [R4]
-  MOV     R0, LD9_PIN                 @ currentPin = LD3_PIN
-  LDR     R4, =reacted 
+  MOV     R5, #350                    @
+  STR     R5, [R4]                    @
+  MOV     R0, LD9_PIN                 @ currentPin = LD9_PIN
+  LDR     R4, =reacted                @~
   MOV     R5, #0
   STR     R5, [R4]                    @ reacted = False  
 
@@ -200,7 +200,7 @@ endLevel7:
   LDR     R4, =FLASH_ON_TIMER         @ FLASH_ON_TIMER = 200;
   MOV     R5, #200
   STR     R5, [R4]
-  MOV     R0, LD7_PIN                 @ currentPin = LD3_PIN
+  MOV     R0, LD7_PIN                 @ currentPin = LD7_PIN
   LDR     R4, =reacted 
   MOV     R5,#0
   STR     R5, [R4]                    @ reacted = False  
@@ -359,7 +359,7 @@ SysTick_Handler:
   CMP     R7,#1                         @   )
   BEQ     .LskipInvert                  @   if(reacted) 
   LDR     R4, =GPIOE_ODR                @   {
-  LDR     R5, [R4]                      @   ledStatus = on/off
+  LDR     R5, [R4]                      @   ledStatus = read(GPIOE_ODR)
   MOV     R6, #0b1
   MOV     R6, R6, LSL R0
   EOR     R5,R6                         @   GPIOE_ODR = GPIOE_ODR ^ (1<<currentPin);
@@ -368,7 +368,7 @@ SysTick_Handler:
   MOV     R6, #0b1
   MOV     R6, R6, LSL R0
   AND     R5, R6
-  CMP     R5,R6                         @ if(ledStatus == ledOff)
+  CMP     R5,R6                         @ if(ledStatus == off)
   BEQ     .LflashOn                     @   {
   LDR     R4, =blink_countdown          @     
   LDR     R5, = FLASH_OFF_TIMER         @
@@ -394,19 +394,19 @@ SysTick_Handler:
 @       R0 - currentPin
   .type  EXTI0_IRQHandler, %function
 
-EXTI0_IRQHandler:
-  PUSH    {R4-R6,LR}
-  LDR     R4, =GPIOE_ODR               
-  LDR     R5, [R4]                        
-  MOV     R6, #0b1                        
-  MOV     R6, R6, LSL R0                  
-  AND     R5, R6                          
-  CMP     R5, R6                          
-  BNE     .LledNotOn                      
-  LDR     R4, =reacted                    
-  MOV     R5, #1
-  STR     R5, [R4]
-  .LledNotOn:
+EXTI0_IRQHandler:                                 
+  PUSH    {R4-R6,LR}                    @ if(buttonPressed)
+  LDR     R4, =GPIOE_ODR                @   {
+  LDR     R5, [R4]                      @   ledStatus = read(GPIOE_ODR) 
+  MOV     R6, #0b1                      @   
+  MOV     R6, R6, LSL R0                @   
+  AND     R5, R6                        @   if(ledStatus == On)
+  CMP     R5, R6                        @     {
+  BNE     .LledNotOn                    @       
+  LDR     R4, =reacted                  @         reacted = true;
+  MOV     R5, #1                        @     }
+  STR     R5, [R4]                      @   
+  .LledNotOn:                           @   }
   LDR     R4, =EXTI_PR                    
   MOV     R5, #(1<<0)                     
   STR     R5, [R4]                        
