@@ -22,7 +22,7 @@
   PUSH  {R4-R7,LR}
   /*************************************   SET UP  *************************************************8*/
 
-  @
+  
   @ Enable GPIO port E by enabling its clock
   LDR     R4, =RCC_AHBENR
   LDR     R5, [R4]
@@ -101,6 +101,9 @@ level1:                               @ do {
   BEQ     endLevel1                   @
   B       level1                      @ }while(reacted == False);
 endLevel1:
+
+  BL      nextLevel                   @ flash all LEDs
+
   LDR     R4, =FLASH_ON_TIMER         @ FLASH_ON_TIMER = 475;
   MOV     R5, #475                    @
   STR     R5, [R4]                    @
@@ -117,6 +120,7 @@ endLevel1:
   BEQ     endLevel2                   @
   B       level2                      @ } while(reacted == False);
 endLevel2:
+  BL      nextLevel
 
   LDR     R4, =FLASH_ON_TIMER         @ FLASH_ON_TIMER = 450;
   MOV     R5, #450                    @
@@ -148,6 +152,7 @@ level4:
   BEQ     endLevel4                    @
   B       level4                       @ }while(reacted == False);
 endLevel4:
+  BL      nextLevel                   @ flash all LEDs
 
   LDR     R4, =FLASH_ON_TIMER         @ FLASH_ON_TIMER = 400;
   MOV     R5, #400                    @
@@ -164,6 +169,7 @@ level5:
   BEQ     endLevel5                   @                 
   B       level5                      @ }while(reacted == False);
 endLevel5:
+  BL      nextLevel                   @ flash all LEDs
 
   LDR     R4, =FLASH_ON_TIMER         @ FLASH_ON_TIMER = 375;
   MOV     R5, #375                    @
@@ -180,6 +186,7 @@ level6:
   BEQ     endLevel6                   @ 
   B       level6                      @ }while(reacted == False);
 endLevel6:
+  BL      nextLevel                   @ flash all LEDs
 
   LDR     R4, =FLASH_ON_TIMER         @ FLASH_ON_TIMER = 350;
   MOV     R5, #350                    @
@@ -196,6 +203,7 @@ level7:
   BEQ     endLevel7                   
   B       level7                      @ }while(reacted == False);
 endLevel7:
+  BL      nextLevel                   @ flash all LEDs
 
   LDR     R4, =FLASH_ON_TIMER         @ FLASH_ON_TIMER = 200;
   MOV     R5, #200
@@ -212,6 +220,7 @@ level8:
   BEQ     endLevel8                   
   B       level8                      @ }while(reacted == False);
 endLevel8:
+  BL      nextLevel                   @ flash all LEDs
 
   LDR     R4, =FLASH_ON_TIMER         @ FLASH_ON_TIMER = 100;
   MOV     R5, #100
@@ -219,6 +228,7 @@ endLevel8:
   MOV     R0, LD5_PIN                 @ currentPin = LD5_PIN
   LDR     R4, = reacted 
   MOV     R5,#0
+
   STR     R5, [R4]                    @ reacted = False  
 
 level9:
@@ -343,6 +353,8 @@ End_Main:
 @
 @ SysTick interrupt handler (blink currentPin)
 @
+@   parameter 
+@     R0  - currentPin
   .type  SysTick_Handler, %function
 SysTick_Handler:
   PUSH    {R0-R9, LR}                      
@@ -360,7 +372,7 @@ SysTick_Handler:
   BEQ     .LskipInvert                  @   if(reacted) 
   LDR     R4, =GPIOE_ODR                @   {
   LDR     R5, [R4]                      @   ledStatus = read(GPIOE_ODR)
-  MOV     R6, #0b1
+  MOV     R6, #0b1                      
   MOV     R6, R6, LSL R0
   EOR     R5,R6                         @   GPIOE_ODR = GPIOE_ODR ^ (1<<currentPin);
   STR     R5, [R4]                      @   ledStatus = !ledStatus
@@ -413,6 +425,58 @@ EXTI0_IRQHandler:
   POP     {R4-R6,PC}                      
   
 
+
+  @
+nextLevel:
+  PUSH    {R0, R5-R7, LR}                 @ Save registers and return address
+  MOV     R6, #8                          @ Initialize loop counter to 0
+  MOV     R5, #8
+  MOV     R7, #0
+
+.LturnOnLoop:
+
+  LDR     R4, =GPIOE_ODR
+  LDR     R5, [R4]                      @ Read ...
+  EOR     R5, #(0b1<<(LD3_PIN))         @ Modify ..
+  STR     R5, [R4]                      @ Write
+  LDR     R4, =GPIOE_ODR
+  LDR     R5, [R4]                      @ Read ...
+  EOR     R5, #(0b1<<(LD4_PIN))         @ Modify ..
+  STR     R5, [R4]                      @ Write
+  LDR     R4, =GPIOE_ODR
+  LDR     R5, [R4]                      @ Read ...
+  EOR     R5, #(0b1<<(LD5_PIN))         @ Modify ..
+  STR     R5, [R4]                      @ Write
+  LDR     R4, =GPIOE_ODR
+  LDR     R5, [R4]                      @ Read ...
+  EOR     R5, #(0b1<<(LD6_PIN))         @ Modify ..
+  STR     R5, [R4]                      @ Write
+  LDR     R4, =GPIOE_ODR
+  LDR     R5, [R4]                      @ Read ...
+  EOR     R5, #(0b1<<(LD7_PIN))         @ Modify ..
+  STR     R5, [R4]                      @ Write LDR     R4, =GPIOE_ODR
+  LDR     R5, [R4]                      @ Read ...
+  EOR     R5, #(0b1<<(LD8_PIN))         @ Modify ..
+  STR     R5, [R4]                      @ Write
+   LDR     R4, =GPIOE_ODR
+  LDR     R5, [R4]                      @ Read ...
+  EOR     R5, #(0b1<<(LD9_PIN))         @ Modify ..
+  STR     R5, [R4]                      @ Write
+  LDR     R4, =GPIOE_ODR
+  LDR     R5, [R4]                      @ Read ...
+  EOR     R5, #(0b1<<(LD10_PIN))         @ Modify ..
+  STR     R5, [R4]                      @ Write
+  
+  LDR R5, =1000000                                     @ (SUBS + BNE + 2 stall cycles for branch)
+.Lwhwait:
+  SUBS    R5, R5, #1                     @ Keep looping until we count down to zero
+  BNE     .Lwhwait 
+  cmp      R7, #1
+  BEQ      finish
+  Mov     R7,  #1
+  B       .LturnOnLoop
+finish:
+  POP     {R0, R5-R7, PC}                 @ Restore registers and return
 
 // memoryAddresses
   .section .data
