@@ -244,10 +244,11 @@ lightSequence:
   EOR     R5, #(0b1<<(LD3_PIN))         @ Modify ...
   STR     R5, [R4]                      @ Write
   @ wait for 1s ...
-  LDR     R5, =500000     @ Assuming 8MHz clock, 4 cycles per iteration
-                          @ (SUBS + BNE + 2 stall cycles for branch)
+  STR     R6,[R4]                       @ turn off all the lights
+  LDR     R5, =500000                   @ Assuming 8MHz clock, 4 cycles per iteration
+                                        @ (SUBS + BNE + 2 stall cycles for branch)
 .LwhwaitL1:
-  SUBS    R5, R5, #1      @ Keep looping until we count down to zero
+  SUBS    R5, R5, #1                    @ Keep looping until we count down to zero
   BNE     .LwhwaitL1  
 //==== Lvl 2
   LDR     R4, =GPIOE_ODR
@@ -255,10 +256,10 @@ lightSequence:
   EOR     R5, #(0b1<<(LD4_PIN))         @ Modify ...
   STR     R5, [R4]                      @ Write
   @ wait for 1s ...
-  LDR     R5, =500000     @ Assuming 8MHz clock, 4 cycles per iteration
-                          @ (SUBS + BNE + 2 stall cycles for branch)
+  LDR     R5, =500000                   @ Assuming 8MHz clock, 4 cycles per iteration
+                                        @ (SUBS + BNE + 2 stall cycles for branch)
 .LwhwaitL2:
-  SUBS    R5, R5, #1      @ Keep looping until we count down to zero
+  SUBS    R5, R5, #1                    @ Keep looping until we count down to zero
   BNE     .LwhwaitL2  
 //==== Lvl 3
   LDR     R4, =GPIOE_ODR
@@ -266,10 +267,10 @@ lightSequence:
   EOR     R5, #(0b1<<(LD6_PIN))         @ Modify ...
   STR     R5, [R4]                      @ Write
   @ wait for 1s ...
-  LDR     R5, =500000     @ Assuming 8MHz clock, 4 cycles per iteration
-                          @ (SUBS + BNE + 2 stall cycles for branch)
+  LDR     R5, =500000                   @ Assuming 8MHz clock, 4 cycles per iteration
+                                        @ (SUBS + BNE + 2 stall cycles for branch)
 .LwhwaitL3:
-  SUBS    R5, R5, #1      @ Keep looping until we count down to zero
+  SUBS    R5, R5, #1                    @ Keep looping until we count down to zero
   BNE     .LwhwaitL3  
 //==== Lvl 4
   LDR     R4, =GPIOE_ODR
@@ -277,22 +278,22 @@ lightSequence:
   EOR     R5, #(0b1<<(LD8_PIN))         @ Modify ...
   STR     R5, [R4]                      @ Write
   @ wait for 1s ...
-  LDR     R5, =500000     @ Assuming 8MHz clock, 4 cycles per iteration
-                          @ (SUBS + BNE + 2 stall cycles for branch)
+  LDR     R5, =500000                   @ Assuming 8MHz clock, 4 cycles per iteration
+                                        @ (SUBS + BNE + 2 stall cycles for branch)
 .LwhwaitL4:
-  SUBS    R5, R5, #1      @ Keep looping until we count down to zero
+  SUBS    R5, R5, #1                    @ Keep looping until we count down to zero
   BNE     .LwhwaitL4  
 //==== Lvl 5
  
   LDR     R4, =GPIOE_ODR
   LDR     R5, [R4]                      @ Read ...
-  EOR     R5, #(0b1<<(LD10_PIN))         @ Modify ...
+  EOR     R5, #(0b1<<(LD10_PIN))        @ Modify ...
   STR     R5, [R4]                      @ Write
   @ wait for 1s ...
-  LDR     R5, =500000     @ Assuming 8MHz clock, 4 cycles per iteration
-                          @ (SUBS + BNE + 2 stall cycles for branch)
+  LDR     R5, =500000                   @ Assuming 8MHz clock, 4 cycles per iteration
+                                        @ (SUBS + BNE + 2 stall cycles for branch)
 .LwhwaitL5:
-  SUBS    R5, R5, #1      @ Keep looping until we count down to zero
+  SUBS    R5, R5, #1                    @ Keep looping until we count down to zero
   BNE     .LwhwaitL5  
   //==== Lvl 6
   LDR     R4, =GPIOE_ODR
@@ -301,21 +302,21 @@ lightSequence:
   STR     R5, [R4]                      @ Write
 
   @ wait for 1s ...
-  LDR     R5, =500000     @ Assuming 8MHz clock, 4 cycles per iteration
-                          @ (SUBS + BNE + 2 stall cycles for branch)
+  LDR     R5, =500000                   @ Assuming 8MHz clock, 4 cycles per iteration
+                                        @ (SUBS + BNE + 2 stall cycles for branch)
 .LwhwaitL6:
-  SUBS    R5, R5, #1      @ Keep looping until we count down to zero
+  SUBS    R5, R5, #1                    @ Keep looping until we count down to zero
   BNE     .LwhwaitL6  
   //==== Lvl 7
   LDR     R4, =GPIOE_ODR
-  LDR     R5, [R4]                            @ Read ...
-  EOR     R5, #(0b1<<(LD7_PIN))               @ Modify ...
-  STR     R5, [R4]                            @ Write
+  LDR     R5, [R4]                      @ Read ...
+  EOR     R5, #(0b1<<(LD7_PIN))         @ Modify ...
+  STR     R5, [R4]                      @ Write
   @ wait for 1s ...
-  LDR     R5, =500000     @ Assuming 8MHz clock, 4 cycles per iteration
-                          @ (SUBS + BNE + 2 stall cycles for branch)
+  LDR     R5, =500000                   @ Assuming 8MHz clock, 4 cycles per iteration
+                                        @ (SUBS + BNE + 2 stall cycles for branch)
 .LwhwaitL7:
-  SUBS    R5, R5, #1      @ Keep looping until we count down to zero
+  SUBS    R5, R5, #1                    @ Keep looping until we count down to zero
   BNE     .LwhwaitL7  
   //==== Lvl 8
   LDR     R4, =GPIOE_ODR
@@ -323,10 +324,10 @@ lightSequence:
   EOR     R5, #(0b1<<(LD5_PIN))         @ Modify ...
   STR     R5, [R4]                      @ Write
   @ wait for 1s ...
-   LDR     R5, =500000                             @ Assuming 8MHz clock, 4 cycles per iteration
-                                                  @ (SUBS + BNE + 2 stall cycles for branch)
+   LDR     R5, =500000                  @ Assuming 8MHz clock, 4 cycles per iteration
+                                        @ (SUBS + BNE + 2 stall cycles for branch)
 .LwhwaitL8:
-  SUBS    R5, R5, #1                              @ Keep looping until we count down to zero
+  SUBS    R5, R5, #1                    @ Keep looping until we count down to zero
   BNE     .LwhwaitL8  
   
   CMP     R7, #1
